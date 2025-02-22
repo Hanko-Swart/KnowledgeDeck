@@ -51,7 +51,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm focus:outline-none min-h-[200px] max-w-none px-4 py-2 [&>*:first-child]:mt-0 [&>*:last-child]:mb-0',
+        class: 'prose prose-sm dark:prose-invert focus:outline-none min-h-[200px] max-w-none px-4 py-2 [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 text-foreground',
       },
     },
   });
@@ -68,14 +68,14 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   }
 
   return (
-    <div className="flex flex-col border border-gray-200 rounded-lg overflow-hidden bg-white">
+    <div className="flex flex-col border border-input rounded-lg overflow-hidden bg-card">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-1 p-2 border-b border-gray-200 bg-gray-50">
+      <div className="flex flex-wrap items-center justify-between gap-1 p-2 border-b border-input bg-muted">
         <div className="flex flex-wrap items-center gap-1">
           <button
             onClick={() => editor.chain().focus().toggleBold().run()}
-            className={`p-1.5 rounded hover:bg-gray-200 transition-colors ${
-              editor.isActive('bold') ? 'bg-gray-200' : ''
+            className={`p-1.5 rounded hover:bg-accent hover:text-accent-foreground transition-colors ${
+              editor.isActive('bold') ? 'bg-accent text-accent-foreground' : 'text-foreground'
             }`}
             title="Bold"
             type="button"
@@ -87,8 +87,8 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
           <button
             onClick={() => editor.chain().focus().toggleItalic().run()}
-            className={`p-1.5 rounded hover:bg-gray-200 transition-colors ${
-              editor.isActive('italic') ? 'bg-gray-200' : ''
+            className={`p-1.5 rounded hover:bg-accent hover:text-accent-foreground transition-colors ${
+              editor.isActive('italic') ? 'bg-accent text-accent-foreground' : 'text-foreground'
             }`}
             title="Italic"
             type="button"
@@ -98,12 +98,12 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </svg>
           </button>
 
-          <div className="w-px h-6 bg-gray-300 mx-1" />
+          <div className="w-px h-6 bg-border mx-1" />
 
           <button
             onClick={() => editor.chain().focus().toggleBulletList().run()}
-            className={`p-1.5 rounded hover:bg-gray-200 transition-colors ${
-              editor.isActive('bulletList') ? 'bg-gray-200' : ''
+            className={`p-1.5 rounded hover:bg-accent hover:text-accent-foreground transition-colors ${
+              editor.isActive('bulletList') ? 'bg-accent text-accent-foreground' : 'text-foreground'
             }`}
             title="Bullet List"
             type="button"
@@ -115,8 +115,8 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
           <button
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
-            className={`p-1.5 rounded hover:bg-gray-200 transition-colors ${
-              editor.isActive('orderedList') ? 'bg-gray-200' : ''
+            className={`p-1.5 rounded hover:bg-accent hover:text-accent-foreground transition-colors ${
+              editor.isActive('orderedList') ? 'bg-accent text-accent-foreground' : 'text-foreground'
             }`}
             title="Numbered List"
             type="button"
@@ -126,12 +126,12 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </svg>
           </button>
 
-          <div className="w-px h-6 bg-gray-300 mx-1" />
+          <div className="w-px h-6 bg-border mx-1" />
 
           <button
             onClick={() => editor.chain().focus().toggleHighlight().run()}
-            className={`p-1.5 rounded hover:bg-gray-200 transition-colors ${
-              editor.isActive('highlight') ? 'bg-gray-200' : ''
+            className={`p-1.5 rounded hover:bg-accent hover:text-accent-foreground transition-colors ${
+              editor.isActive('highlight') ? 'bg-accent text-accent-foreground' : 'text-foreground'
             }`}
             title="Highlight"
             type="button"
@@ -143,13 +143,13 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         </div>
 
         {/* Character and Word Count */}
-        <div className="text-xs text-gray-500">
+        <div className="text-xs text-muted-foreground">
           {editor.storage.characterCount.characters()} chars · {editor.getText().trim().split(/\s+/).filter(Boolean).length} words
         </div>
       </div>
 
       {/* Editor Content */}
-      <EditorContent editor={editor} />
+      <EditorContent editor={editor} className="prose-sm dark:prose-invert" />
     </div>
   );
 }; 

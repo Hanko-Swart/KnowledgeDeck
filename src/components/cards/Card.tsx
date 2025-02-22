@@ -1,11 +1,12 @@
 import React from 'react';
-import { 
-  BookmarkRounded,
-  EditNoteRounded,
-  EditRounded,
-  DeleteRounded,
-  LinkRounded
-} from '@mui/icons-material';
+import {
+  FileText,
+  Bookmark,
+  MoreVertical,
+  Edit,
+  Trash,
+  ExternalLink
+} from 'lucide-react';
 
 export interface CardData {
   id: string;
@@ -52,9 +53,9 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, onDelete, cla
         <div className="flex items-center gap-2">
           <span className="p-1.5 rounded-md bg-gray-100">
             {data.type === 'bookmark' ? (
-              <BookmarkRounded className="w-4 h-4 text-gray-700" />
+              <Bookmark className="h-5 w-5" />
             ) : (
-              <EditNoteRounded className="w-4 h-4 text-gray-700" />
+              <FileText className="h-5 w-5" />
             )}
           </span>
           <div>
@@ -71,13 +72,13 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, onDelete, cla
             onClick={handleEdit}
             className="p-1.5 rounded-md transition-colors bg-gray-100 hover:bg-gray-200"
           >
-            <EditRounded className="w-4 h-4 text-gray-700" />
+            <Edit className="h-4 w-4" />
           </button>
           <button
             onClick={handleDelete}
             className="p-1.5 rounded-md transition-colors bg-gray-100 hover:bg-red-100"
           >
-            <DeleteRounded className="w-4 h-4 text-gray-700 hover:text-red-600" />
+            <Trash className="h-4 w-4" />
           </button>
         </div>
       </div>
@@ -105,7 +106,7 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, onDelete, cla
       {/* URL (for bookmarks) */}
       {data.type === 'bookmark' && data.url && (
         <div className="flex items-center text-xs mb-3 text-gray-600">
-          <LinkRounded className="w-3 h-3 mr-1.5 flex-shrink-0" />
+          <ExternalLink className="h-4 w-4 mr-1.5 flex-shrink-0" />
           <span className="truncate hover:underline">{data.url}</span>
         </div>
       )}

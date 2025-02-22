@@ -3,12 +3,13 @@ import type { Folder } from '@/types/folder';
 import { CreateNoteModal } from '@components/modals/CreateNoteModal';
 import { CreateBookmarkModal } from '@components/modals/CreateBookmarkModal';
 import { getCurrentTab } from '@/utils/chrome';
-import { 
-  NoteAddRounded,
-  BookmarkAddRounded,
-  CreateNewFolderRounded,
-  AccountTreeRounded
-} from '@mui/icons-material';
+import {
+  Plus,
+  FileText,
+  Bookmark,
+  GitBranch,
+  Folder as FolderIcon
+} from 'lucide-react';
 
 interface BottomActionBarProps {
   folders: Folder[];
@@ -42,34 +43,34 @@ export const BottomActionBar: React.FC<BottomActionBarProps> = ({
 
   return (
     <>
-      <div className="bg-white border-t shadow-lg">
+      <div className="bg-card border-t border-border shadow-lg">
         <div className="flex items-center justify-around p-2">
           <button
             onClick={() => setIsNoteModalOpen(true)}
-            className="flex flex-col items-center p-2 text-primary-dark hover:bg-secondary/10 rounded-lg transition-colors"
+            className="flex flex-col items-center p-2 text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
           >
-            <NoteAddRounded className="w-6 h-6" />
+            <Plus className="h-5 w-5" />
             <span className="text-xs mt-1">Note</span>
           </button>
           <button
             onClick={handleAddBookmark}
-            className="flex flex-col items-center p-2 text-primary-dark hover:bg-secondary/10 rounded-lg transition-colors"
+            className="flex flex-col items-center p-2 text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
           >
-            <BookmarkAddRounded className="w-6 h-6" />
+            <Bookmark className="h-4 w-4" />
             <span className="text-xs mt-1">Bookmark</span>
           </button>
           <button
             onClick={() => onAddFolder?.(currentFolderId)}
-            className="flex flex-col items-center p-2 text-primary-dark hover:bg-secondary/10 rounded-lg transition-colors"
+            className="flex flex-col items-center p-2 text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
           >
-            <CreateNewFolderRounded className="w-6 h-6" />
+            <FolderIcon className="h-4 w-4" />
             <span className="text-xs mt-1">Folder</span>
           </button>
           <button
             onClick={() => onAddFlowDiagram?.(currentFolderId || '')}
-            className="flex flex-col items-center p-2 text-primary-dark hover:bg-secondary/10 rounded-lg transition-colors"
+            className="flex flex-col items-center p-2 text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
           >
-            <AccountTreeRounded className="w-6 h-6" />
+            <GitBranch className="h-4 w-4" />
             <span className="text-xs mt-1">Flow</span>
           </button>
         </div>

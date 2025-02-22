@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import type { Folder } from '@/types/folder';
 import type { CardData } from '@components/cards/Card';
-import { 
-  FolderRounded,
-  EditRounded,
-  DeleteRounded
-} from '@mui/icons-material';
+import {
+  Folder as FolderIcon,
+  MoreVertical,
+  Edit,
+  Trash,
+  Palette
+} from 'lucide-react';
 
 interface FolderCardProps {
   folder: Folder;
@@ -50,20 +52,20 @@ export const FolderCard: React.FC<FolderCardProps> = ({
 
   return (
     <div
-      className={`group relative bg-white rounded-lg shadow-sm hover:shadow-md transition-all p-4 cursor-pointer border border-gray-200 ${className}`}
+      className={`group relative bg-card text-card-foreground rounded-lg shadow-sm hover:shadow-md transition-all p-4 cursor-pointer border border-border ${className}`}
       onClick={handleClick}
     >
       {/* Header */}
       <div className="flex items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-2">
-          <span className="p-1.5 rounded-lg bg-gray-100">
-            <FolderRounded className="w-5 h-5 text-gray-700" />
+          <span className="p-1.5 rounded-lg bg-muted">
+            <FolderIcon className="h-5 w-5" />
           </span>
           <div>
-            <h3 className="text-base font-medium leading-tight text-gray-900">
+            <h3 className="text-base font-medium leading-tight">
               {folder.name}
             </h3>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-muted-foreground">
               {items.length} items
             </span>
           </div>
@@ -71,15 +73,15 @@ export const FolderCard: React.FC<FolderCardProps> = ({
         <div className="flex items-center gap-1">
           <button
             onClick={handleEdit}
-            className="p-1.5 rounded-md transition-colors bg-gray-100 hover:bg-gray-200"
+            className="p-1.5 rounded-md transition-colors bg-muted hover:bg-muted/80"
           >
-            <EditRounded className="w-4 h-4 text-gray-700" />
+            <Edit className="h-4 w-4" />
           </button>
           <button
             onClick={handleDelete}
-            className="p-1.5 rounded-md transition-colors bg-gray-100 hover:bg-red-100"
+            className="p-1.5 rounded-md transition-colors bg-muted hover:bg-destructive hover:text-destructive-foreground"
           >
-            <DeleteRounded className="w-4 h-4 text-gray-700 hover:text-red-600" />
+            <Trash className="h-4 w-4" />
           </button>
         </div>
       </div>
@@ -90,19 +92,19 @@ export const FolderCard: React.FC<FolderCardProps> = ({
           {items.slice(0, 2).map(item => (
             <div 
               key={item.id} 
-              className="text-sm truncate text-gray-600"
+              className="text-sm truncate text-muted-foreground"
             >
               {item.type === 'bookmark' ? '🔖' : '📝'} {item.title}
             </div>
           ))}
           {items.length > 2 && (
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-muted-foreground">
               +{items.length - 2} more...
             </div>
           )}
         </div>
       ) : (
-        <div className="text-sm mb-3 text-gray-500">
+        <div className="text-sm mb-3 text-muted-foreground">
           Empty folder
         </div>
       )}
@@ -113,13 +115,13 @@ export const FolderCard: React.FC<FolderCardProps> = ({
           {tags.slice(0, 3).map(tag => (
             <span
               key={tag}
-              className="px-2 py-0.5 text-xs rounded-lg bg-gray-100 text-gray-700"
+              className="px-2 py-0.5 text-xs rounded-lg bg-muted text-muted-foreground"
             >
               {tag}
             </span>
           ))}
           {tags.length > 3 && (
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-muted-foreground">
               +{tags.length - 3} more
             </span>
           )}

@@ -2,93 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
+
 @layer base {
-  html {
-    font-family: "Inter var", system-ui, sans-serif;
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 5%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 5%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 5%;
+
+    --primary: 185 74% 25%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 5%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 5%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 92%;
+    --input: 0 0% 85%;
+    --ring: 0 0% 76%;
+
+    --radius: 0.5rem;
   }
   
-  body {
-    @apply bg-secondary text-primary-dark;
+  .dark {
+    --background: 180 7% 8%;
+    --foreground: 180 9% 98%;
+
+    --card: 180 6% 10%;
+    --card-foreground: 180 9% 98%;
+
+    --popover: 180 6% 10%;
+    --popover-foreground: 180 9% 98%;
+
+    --primary: 182 24% 46%;
+    --primary-foreground: 240 9% 2%;
+
+    --secondary: 180 8% 19%;
+    --secondary-foreground: 180 9% 98%;
+
+    --muted: 180 7% 29%;
+    --muted-foreground: 183 8% 49%;
+
+    --accent: 182 71% 19%;
+    --accent-foreground: 180 9% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 180 8% 12%;
+    --input: 187 9% 18%;
+    --ring: 181 24% 40%;
   }
 }
 
-@layer components {
-  .card {
-    @apply bg-white rounded-lg shadow-md p-4 transition-all duration-200;
-  }
 
-  .card:hover {
-    @apply shadow-lg transform -translate-y-1;
-  }
-
-  .btn {
-    @apply px-4 py-2 rounded-md font-medium transition-colors duration-200;
-  }
-
-  .btn-primary {
-    @apply bg-primary text-white hover:bg-primary-dark;
-  }
-
-  .btn-secondary {
-    @apply bg-secondary hover:bg-secondary-dark text-primary-dark;
-  }
-
-  .input {
-    @apply px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary;
-  }
-
-  /* TipTap Editor Styles */
-  .ProseMirror {
-    @apply text-primary-dark;
-    min-height: 200px;
-  }
-
-  .ProseMirror p {
-    @apply mb-2;
-  }
-
-  .ProseMirror h1 {
-    @apply text-2xl font-bold mb-4;
-  }
-
-  .ProseMirror h2 {
-    @apply text-xl font-bold mb-3;
-  }
-
-  .ProseMirror ul {
-    @apply list-disc pl-6 mb-4;
-  }
-
-  .ProseMirror ol {
-    @apply list-decimal pl-6 mb-4;
-  }
-
-  .ProseMirror blockquote {
-    @apply border-l-4 border-gray-300 pl-4 italic my-4;
-  }
-
-  .ProseMirror .task-list {
-    @apply list-none pl-0;
-  }
-
-  .ProseMirror .task-list li {
-    @apply flex items-start gap-2;
-  }
-
-  .ProseMirror .task-list li > label {
-    @apply flex items-center gap-2 cursor-pointer;
-  }
-
-  .ProseMirror .task-list li > label > input[type="checkbox"] {
-    @apply rounded border-gray-300 text-primary focus:ring-primary;
-  }
-
-  .ProseMirror mark {
-    @apply bg-yellow-200 px-1 rounded;
-  }
-
-  .ProseMirror p.is-editor-empty:first-child::before {
-    @apply text-gray-400 float-left h-0 pointer-events-none;
-    content: attr(data-placeholder);
-  }
-} 

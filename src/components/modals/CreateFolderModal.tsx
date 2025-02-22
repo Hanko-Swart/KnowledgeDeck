@@ -71,16 +71,16 @@ export const CreateFolderModal: React.FC<CreateFolderModalProps> = ({
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
         <div
-          className="fixed inset-0 transition-opacity bg-black/50 backdrop-blur-sm"
+          className="fixed inset-0 transition-opacity bg-background/80 backdrop-blur-sm"
           onClick={onClose}
         />
 
-        <div className="inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+        <div className="inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-background rounded-lg shadow-lg border border-border sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium text-gray-900">Create New Folder</h3>
+            <h3 className="text-lg font-medium text-foreground">Create New Folder</h3>
             <button
               onClick={onClose}
-              className="p-1.5 text-gray-400 hover:text-gray-500 rounded-lg hover:bg-gray-100 transition-colors"
+              className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -91,14 +91,14 @@ export const CreateFolderModal: React.FC<CreateFolderModalProps> = ({
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Folder Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Folder Name
               </label>
               <input
                 type="text"
                 value={folderName}
                 onChange={(e) => setFolderName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
                 placeholder="Enter folder name..."
                 required
               />
@@ -106,13 +106,13 @@ export const CreateFolderModal: React.FC<CreateFolderModalProps> = ({
 
             {/* Parent Folder Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Parent Folder (Optional)
               </label>
               <select
                 value={selectedParentId || ''}
                 onChange={(e) => setSelectedParentId(e.target.value || null)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="">No parent (root level)</option>
                 {folders.map(folder => (
@@ -125,7 +125,7 @@ export const CreateFolderModal: React.FC<CreateFolderModalProps> = ({
 
             {/* Color Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Folder Color
               </label>
               <div className="flex flex-wrap gap-2">
@@ -146,7 +146,7 @@ export const CreateFolderModal: React.FC<CreateFolderModalProps> = ({
             </div>
 
             {/* Preview */}
-            <div className="mt-4 p-4 rounded-lg" style={{ backgroundColor: selectedColor + '20' }}>
+            <div className="mt-4 p-4 rounded-lg bg-muted">
               <div className="flex items-center gap-3">
                 <div
                   className="w-10 h-10 rounded-lg flex items-center justify-center"
@@ -167,10 +167,10 @@ export const CreateFolderModal: React.FC<CreateFolderModalProps> = ({
                   </svg>
                 </div>
                 <div>
-                  <h4 className="font-medium" style={{ color: selectedColor }}>
+                  <h4 className="font-medium text-foreground" style={{ color: selectedColor }}>
                     {folderName || 'New Folder'}
                   </h4>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted-foreground">
                     {selectedParentId
                       ? `Inside: ${folders.find(f => f.id === selectedParentId)?.name}`
                       : 'Root level folder'}
@@ -184,13 +184,13 @@ export const CreateFolderModal: React.FC<CreateFolderModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                className="px-4 py-2 text-sm font-medium text-foreground bg-background border border-input rounded-lg hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                 disabled={!folderName.trim()}
               >
                 Create Folder
