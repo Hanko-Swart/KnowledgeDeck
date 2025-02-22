@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import type { AIResponse } from '@/services/ai/types';
+import type { AIResponse, TagGenerationResponse, SummaryGenerationResponse, SimilaritySearchResponse } from '@/types/ai';
 import { getAIService } from '@/services/ai';
 
 interface UseAIResult {
@@ -27,7 +27,7 @@ export function useAI(): UseAIResult {
     try {
       const service = await getAIService();
       const response = await service.generateTags(content);
-      const result = handleAIResponse(response);
+      const result = handleAIResponse<TagGenerationResponse>(response);
       return result.tags || [];
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to generate tags';
@@ -44,7 +44,7 @@ export function useAI(): UseAIResult {
     try {
       const service = await getAIService();
       const response = await service.generateSummary(content);
-      const result = handleAIResponse(response);
+      const result = handleAIResponse<SummaryGenerationResponse>(response);
       
       if (!result.summary) {
         throw new Error('AI service returned an empty summary');
@@ -71,7 +71,7 @@ export function useAI(): UseAIResult {
     try {
       const service = await getAIService();
       const response = await service.findSimilarContent(content, items);
-      const result = handleAIResponse(response);
+      const result = handleAIResponse<SimilaritySearchResponse>(response);
       return result.similarItems || [];
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to find similar content';
