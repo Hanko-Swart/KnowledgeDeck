@@ -1,7 +1,6 @@
 import type { 
   AIService, 
   AIConfig, 
-  /* @ts-expect-error - These types are part of the API contract */
   AIResponse, 
   TagGenerationResponse, 
   SummaryGenerationResponse, 
@@ -10,6 +9,14 @@ import type {
 import { AIConfigManager } from './config';
 import { HuggingFaceService } from './huggingface';
 import { FallbackAIService } from './fallback';
+
+// Re-export the response types as they are part of the public API
+export type {
+  TagGenerationResponse,
+  SummaryGenerationResponse,
+  SimilaritySearchResponse,
+  AIResponse
+};
 
 export class AIServiceFactory {
   private static instance: AIService | null = null;
