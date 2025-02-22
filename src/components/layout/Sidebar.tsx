@@ -7,6 +7,7 @@ import type { CardData } from '@components/cards/Card';
 import type { Folder } from '@/types/folder';
 import { AddNewMenu } from '@components/modals/AddNewMenu';
 import { getFolders, saveFolders } from '@/storage/folderStorage';
+import { BottomActionBar } from '@components/layout/BottomActionBar';
 
 export const Sidebar: React.FC = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
@@ -175,25 +176,6 @@ export const Sidebar: React.FC = () => {
         <div className="flex items-center gap-2">
           <button
             className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
-            onClick={() => setIsAddMenuOpen(true)}
-            title="Create New"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-          </button>
-          <button
-            className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
             title="Settings"
           >
             <svg
@@ -218,17 +200,6 @@ export const Sidebar: React.FC = () => {
           </button>
         </div>
       </div>
-
-      {/* Add New Menu */}
-      <AddNewMenu
-        isOpen={isAddMenuOpen}
-        onClose={() => setIsAddMenuOpen(false)}
-        folders={mockFolders}
-        onAddBookmark={handleAddBookmark}
-        onAddNote={handleAddNote}
-        onAddFlowDiagram={handleAddFlowDiagram}
-        onCreateFolder={handleCreateFolder}
-      />
 
       {/* Search Bar */}
       <div className="p-4">
@@ -305,6 +276,27 @@ export const Sidebar: React.FC = () => {
           </div>
         </>
       )}
+
+      {/* Bottom Action Bar */}
+      <BottomActionBar
+        onAddBookmark={handleAddBookmark}
+        onAddNote={handleAddNote}
+        onAddFlowDiagram={handleAddFlowDiagram}
+        onCreateFolder={handleCreateFolder}
+        currentFolderId={currentFolderId}
+        folders={mockFolders}
+      />
+
+      {/* Add New Menu */}
+      <AddNewMenu
+        isOpen={isAddMenuOpen}
+        onClose={() => setIsAddMenuOpen(false)}
+        folders={mockFolders}
+        onAddBookmark={handleAddBookmark}
+        onAddNote={handleAddNote}
+        onAddFlowDiagram={handleAddFlowDiagram}
+        onCreateFolder={handleCreateFolder}
+      />
     </div>
   );
 }; 
