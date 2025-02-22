@@ -3,6 +3,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Highlight from '@tiptap/extension-highlight';
 import Placeholder from '@tiptap/extension-placeholder';
+import CharacterCount from '@tiptap/extension-character-count';
 
 interface RichTextEditorProps {
   content: string;
@@ -42,6 +43,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         placeholder,
         showOnlyWhenEditable: true,
       }),
+      CharacterCount,
     ],
     content,
     onUpdate: ({ editor }) => {
@@ -64,10 +66,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   if (!editor) {
     return null;
   }
-
-  // Calculate character and word count
-  const characterCount = editor.storage.characterCount?.characters() ?? 0;
-  const wordCount = editor.getText().trim().split(/\s+/).filter(Boolean).length;
 
   return (
     <div className="flex flex-col border border-gray-200 rounded-lg overflow-hidden bg-white">
@@ -139,14 +137,14 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             type="button"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M15 5l4 4M13 7l4 4M9.5 10.5l4 4M8 15l1 1M6 17l1 1M3 19l2 2M19 9l-8.5 8.5L7 21H3v-4l3.5-3.5L15 5l4 4z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
         </div>
 
         {/* Character and Word Count */}
         <div className="text-xs text-gray-500">
-          {wordCount} words · {characterCount} characters
+          {editor.storage.characterCount.characters()} chars · {editor.getText().trim().split(/\s+/).filter(Boolean).length} words
         </div>
       </div>
 
