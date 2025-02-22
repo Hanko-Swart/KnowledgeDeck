@@ -11,6 +11,7 @@ import { getFolders, saveFolders } from '@/storage/folderStorage';
 import { getNotes } from '@/storage/noteStorage';
 import { BottomActionBar } from '@components/layout/BottomActionBar';
 import { AISettings } from '@components/settings/AISettings';
+import { getAllBookmarks } from '@/storage/bookmarkStorage';
 
 export const Sidebar: React.FC = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
@@ -35,25 +36,48 @@ export const Sidebar: React.FC = () => {
   // Load folders and notes from storage on component mount
   useEffect(() => {
     const loadData = async () => {
-      // Load folders
-      const storedFolders = await getFolders();
-      if (storedFolders.length > 0) {
-        setMockFolders(storedFolders);
-      } else {
-        // Initialize with default folders if none exist
-        const defaultFolders: Folder[] = [
-          { id: '1', name: 'Research', parentId: null, color: '#1a4d63' },
-          { id: '2', name: 'Projects', parentId: null },
-          { id: '3', name: 'Articles', parentId: '1' },
-          { id: '4', name: 'Ideas', parentId: '2' },
-        ];
-        setMockFolders(defaultFolders);
-        await saveFolders(defaultFolders);
-      }
+      try {
+        // Load folders
+        const storedFolders = await getFolders();
+        if (storedFolders.length > 0) {
+          setMockFolders(storedFolders);
+        } else {
+          // Initialize with default folders if none exist
+          const defaultFolders: Folder[] = [
+            { id: '1', name: 'Research', parentId: null, color: '#1a4d63' },
+            { id: '2', name: 'Projects', parentId: null },
+            { id: '3', name: 'Articles', parentId: '1' },
+            { id: '4', name: 'Ideas', parentId: '2' },
+          ];
+          setMockFolders(defaultFolders);
+          await saveFolders(defaultFolders);
+        }
 
-      // Load notes and convert them to CardData
-      const storedNotes = await getNotes();
-      setNotes(storedNotes.map(convertNoteToCard));
+        // Load notes and convert them to CardData
+        const storedNotes = await getNotes();
+        const noteCards = storedNotes.map(convertNoteToCard);
+
+        // Load bookmarks and convert them to CardData
+        const storedBookmarks = await getAllBookmarks();
+        const bookmarkCards = storedBookmarks.map(bookmark => ({
+          id: bookmark.id,
+          type: 'bookmark' as const,
+          title: bookmark.title,
+          description: bookmark.description,
+          url: bookmark.url,
+          tags: bookmark.tags,
+          createdAt: new Date(bookmark.createdAt),
+          updatedAt: new Date(bookmark.updatedAt),
+          folderId: bookmark.folderId,
+          screenshot: bookmark.screenshot,
+        }));
+
+        // Combine notes and bookmarks
+        setNotes([...noteCards, ...bookmarkCards]);
+      } catch (error) {
+        console.error('Failed to load data:', error);
+        // TODO: Show error message to user
+      }
     };
     loadData();
   }, []);
@@ -133,8 +157,20 @@ export const Sidebar: React.FC = () => {
   };
 
   const handleAddBookmark = async (folderId: string) => {
-    // TODO: Implement bookmark creation
-    console.log('Adding bookmark to folder:', folderId);
+    // Refresh bookmarks list after bookmark creation
+    const updatedBookmarks = await getAllBookmarks();
+    const bookmarkCards = updatedBookmarks.map(bookmark => ({
+      id: bookmark.id,
+      type: 'bookmark' as const,
+      title: bookmark.title,
+      description: bookmark.description,
+      url: bookmark.url,
+      tags: bookmark.tags,
+      createdAt: new Date(bookmark.createdAt),
+      updatedAt: new Date(bookmark.updatedAt),
+      folderId: bookmark.folderId,
+    }));
+    setNotes(prev => [...prev.filter(note => note.type !== 'bookmark'), ...bookmarkCards]);
   };
 
   const handleAddNote = async (folderId: string) => {
@@ -148,81 +184,30 @@ export const Sidebar: React.FC = () => {
     console.log('Adding flow diagram to folder:', folderId);
   };
 
-  const handleCreateFolder = (name: string) => {
+  const handleCreateFolder = (parentId: string | null) => {
     const newFolder: Folder = {
       id: Date.now().toString(),
-      name,
-      parentId: null,
+      name: `New Folder ${mockFolders.length + 1}`,
+      parentId,
     };
     setMockFolders(prev => [...prev, newFolder]);
   };
 
   return (
-    <div className="flex flex-col h-screen bg-white">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-gray-900 text-white">
-        <div className="flex items-center gap-2">
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-            />
-          </svg>
-          <span className="text-lg font-semibold">KnowledgeDeck</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
-            title="Settings"
-            onClick={() => setIsSettingsOpen(true)}
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      {/* Search Bar */}
-      <div className="p-4">
+    <div className="flex flex-col h-screen bg-gray-50">
+      {/* Search and Navigation */}
+      <div className="flex-none p-4 border-b border-gray-200">
         <SearchBar onSearch={handleSearch} />
-      </div>
-
-      {currentFolder ? (
-        // Folder View
-        <>
+        {currentFolder ? (
           <FolderNavigation
             currentFolder={currentFolder}
+            folders={mockFolders}
             onBack={() => setCurrentFolderId(null)}
             onFolderSelect={setCurrentFolderId}
-            folders={mockFolders}
           />
-
-          {/* View Toggle */}
-          <div className="px-4 py-2 flex items-center justify-end border-b border-gray-200">
+        ) : (
+          <div className="flex items-center justify-between mt-4">
+            <h2 className="text-lg font-medium text-primary-dark">My Folders</h2>
             <div className="flex items-center gap-2">
               <button
                 className={`p-1.5 rounded transition-colors ${
@@ -250,22 +235,21 @@ export const Sidebar: React.FC = () => {
               </button>
             </div>
           </div>
+        )}
+      </div>
 
-          {/* Folder Content */}
-          <div className="flex-1 overflow-y-auto p-4">
+      {/* Scrollable Content Area */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-4">
+          {currentFolder ? (
             <CardGrid
               cards={currentItems}
-              viewMode={viewMode}
               onCardClick={handleCardClick}
               onCardEdit={handleCardEdit}
+              viewMode={viewMode}
+              folderColor={currentFolder.color}
             />
-          </div>
-        </>
-      ) : (
-        // Home View
-        <>
-          {/* Folders Grid */}
-          <div className="flex-1 overflow-y-auto p-4">
+          ) : (
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
               {rootFolders.map(folder => (
                 <FolderCard
@@ -277,44 +261,45 @@ export const Sidebar: React.FC = () => {
                 />
               ))}
             </div>
-          </div>
-        </>
-      )}
+          )}
+        </div>
+      </div>
 
       {/* Bottom Action Bar */}
-      <BottomActionBar
-        onAddBookmark={handleAddBookmark}
-        onAddNote={handleAddNote}
-        onAddFlowDiagram={handleAddFlowDiagram}
-        onCreateFolder={handleCreateFolder}
-        currentFolderId={currentFolderId}
-        folders={mockFolders}
-      />
+      <div className="flex-none">
+        <BottomActionBar
+          folders={mockFolders}
+          currentFolderId={currentFolderId}
+          onAddNote={handleAddNote}
+          onAddBookmark={handleAddBookmark}
+          onAddFlowDiagram={handleAddFlowDiagram}
+          onAddFolder={handleCreateFolder}
+        />
+      </div>
 
-      {/* Add New Menu */}
+      {/* Modals */}
       <AddNewMenu
         isOpen={isAddMenuOpen}
         onClose={() => setIsAddMenuOpen(false)}
-        folders={mockFolders}
         onAddBookmark={handleAddBookmark}
         onAddNote={handleAddNote}
         onAddFlowDiagram={handleAddFlowDiagram}
+        folders={mockFolders}
         onCreateFolder={handleCreateFolder}
       />
 
-      {/* Settings Modal */}
       {isSettingsOpen && (
-        <>
+        <div className="fixed inset-0 z-50">
           <div 
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setIsSettingsOpen(false)}
           />
-          <div className="fixed inset-4 sm:inset-auto sm:top-[5%] sm:left-1/2 sm:-translate-x-1/2 sm:w-[600px] sm:max-h-[90vh] bg-white rounded-lg shadow-xl z-50 flex flex-col">
-            <div className="flex items-center justify-between px-4 py-3 border-b">
-              <h2 className="text-lg font-medium text-primary-dark">Settings</h2>
+          <div className="absolute inset-4 sm:inset-auto sm:top-[5%] sm:left-1/2 sm:-translate-x-1/2 sm:w-[600px] sm:max-h-[90vh] bg-white rounded-lg shadow-xl overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h2 className="text-lg font-medium">AI Settings</h2>
               <button
                 onClick={() => setIsSettingsOpen(false)}
-                className="p-1.5 hover:bg-secondary/10 rounded-lg transition-colors"
+                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <svg
                   className="w-5 h-5 text-gray-500"
@@ -331,11 +316,11 @@ export const Sidebar: React.FC = () => {
                 </svg>
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto">
+            <div className="p-4">
               <AISettings />
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

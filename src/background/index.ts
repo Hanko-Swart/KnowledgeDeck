@@ -1,6 +1,16 @@
+import { db } from '@/storage/db';
+
 // Listen for extension installation or update
 chrome.runtime.onInstalled.addListener(async () => {
   console.log('KnowledgeDeck extension installed or updated');
+  
+  try {
+    // Initialize the database
+    await db.open();
+    console.log('Database initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize database:', error);
+  }
   
   // Enable the side panel by default
   await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });

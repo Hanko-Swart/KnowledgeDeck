@@ -10,9 +10,9 @@ class KnowledgeDeckDatabase extends Dexie {
 
   constructor() {
     super('KnowledgeDeckDB');
-    this.version(1).stores({
+    this.version(2).stores({
       notes: '++id, folderId, createdAt, updatedAt, type',
-      bookmarks: '++id, folderId, createdAt, updatedAt, type',
+      bookmarks: '++id, folderId, createdAt, updatedAt, type, screenshot',
       folders: '++id, parentId, createdAt, updatedAt',
     });
   }

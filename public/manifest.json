@@ -9,7 +9,8 @@
     "bookmarks",
     "scripting",
     "sidePanel",
-    "activeTab"
+    "activeTab",
+    "windows"
   ],
   "host_permissions": [
     "<all_urls>"

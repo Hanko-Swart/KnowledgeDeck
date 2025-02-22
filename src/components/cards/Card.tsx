@@ -10,6 +10,7 @@ export interface CardData {
   createdAt: Date;
   updatedAt: Date;
   folderId?: string;
+  screenshot?: string;
 }
 
 interface CardProps {
@@ -85,6 +86,18 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, className = '
           </svg>
         </button>
       </div>
+
+      {/* Screenshot Preview (for bookmarks) */}
+      {data.type === 'bookmark' && data.screenshot && (
+        <div className="relative w-full h-32 mb-3 rounded-md overflow-hidden">
+          <img
+            src={data.screenshot}
+            alt={`Screenshot of ${data.title}`}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+        </div>
+      )}
 
       {/* Card Content */}
       {data.description && (

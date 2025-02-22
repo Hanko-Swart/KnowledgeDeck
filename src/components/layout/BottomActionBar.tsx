@@ -37,7 +37,7 @@ export const BottomActionBar: React.FC<BottomActionBarProps> = ({
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-30">
+      <div className="relative bg-white border-t shadow-lg z-30">
         {/* Main Action Bar */}
         <div className="flex items-center justify-between p-2">
           {/* Left Side - Action Buttons */}

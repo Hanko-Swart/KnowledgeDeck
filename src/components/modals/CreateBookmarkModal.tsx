@@ -108,13 +108,17 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedFolderId || !title.trim() || !url.trim()) return;
+    if (!selectedFolderId || !title.trim() || !url.trim()) {
+      setError('Please fill in all required fields');
+      return;
+    }
 
     try {
+      setError(null);
       await saveBookmark({
         title: title.trim(),
         url: url.trim(),
-        description,
+        description: description || '',
         folderId: selectedFolderId,
         tags,
       });
@@ -122,6 +126,7 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
       onClose();
     } catch (error) {
       console.error('Failed to create bookmark:', error);
+      setError('Failed to save bookmark. Please try again.');
     }
   };
 
@@ -175,8 +180,9 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
           </button>
         </div>
 
-        {/* Content - Scrollable */}
+        {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+          {/* Content - Scrollable */}
           <div className="flex-1 overflow-y-auto">
             <div className="p-4 space-y-4">
               {/* URL Input */}
@@ -294,7 +300,7 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
                     onChange={(e) => {
                       const result = handleTagInput(e.target.value);
                       if (result !== undefined) {
-                        e.target.value = result;
+                        setTagInput(result);
                       }
                     }}
                     onKeyDown={(e) => {
@@ -303,7 +309,7 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
                         const input = e.currentTarget.value.trim();
                         if (input && !tags.includes(input)) {
                           setTags([...tags, input]);
-                          e.currentTarget.value = '';
+                          setTagInput('');
                         }
                       }
                     }}
