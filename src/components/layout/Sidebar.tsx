@@ -10,11 +10,13 @@ import { AddNewMenu } from '@components/modals/AddNewMenu';
 import { getFolders, saveFolders } from '@/storage/folderStorage';
 import { getNotes } from '@/storage/noteStorage';
 import { BottomActionBar } from '@components/layout/BottomActionBar';
+import { AISettings } from '@components/settings/AISettings';
 
 export const Sidebar: React.FC = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [mockFolders, setMockFolders] = useState<Folder[]>([]);
   const [notes, setNotes] = useState<CardData[]>([]);
 
@@ -179,6 +181,7 @@ export const Sidebar: React.FC = () => {
           <button
             className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
             title="Settings"
+            onClick={() => setIsSettingsOpen(true)}
           >
             <svg
               className="w-5 h-5"
@@ -298,6 +301,42 @@ export const Sidebar: React.FC = () => {
         onAddFlowDiagram={handleAddFlowDiagram}
         onCreateFolder={handleCreateFolder}
       />
+
+      {/* Settings Modal */}
+      {isSettingsOpen && (
+        <>
+          <div 
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            onClick={() => setIsSettingsOpen(false)}
+          />
+          <div className="fixed inset-4 sm:inset-auto sm:top-[5%] sm:left-1/2 sm:-translate-x-1/2 sm:w-[600px] sm:max-h-[90vh] bg-white rounded-lg shadow-xl z-50 flex flex-col">
+            <div className="flex items-center justify-between px-4 py-3 border-b">
+              <h2 className="text-lg font-medium text-primary-dark">Settings</h2>
+              <button
+                onClick={() => setIsSettingsOpen(false)}
+                className="p-1.5 hover:bg-secondary/10 rounded-lg transition-colors"
+              >
+                <svg
+                  className="w-5 h-5 text-gray-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <AISettings />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }; 

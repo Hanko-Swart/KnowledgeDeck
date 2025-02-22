@@ -3,6 +3,7 @@ import type { Folder } from '@/types/folder';
 import { saveNote } from '@/storage/noteStorage';
 import { RichTextEditor } from '@components/editor/RichTextEditor';
 import { noteTemplates } from '@/templates/noteTemplates';
+import { useAI } from '@/hooks/useAI';
 
 interface CreateNoteModalProps {
   isOpen: boolean;
@@ -19,12 +20,14 @@ export const CreateNoteModal: React.FC<CreateNoteModalProps> = ({
   currentFolderId,
   onNoteCreated,
 }) => {
+  const { isLoading: isAILoading, error: aiError, generateTags, generateSummary } = useAI();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [selectedFolderId, setSelectedFolderId] = useState(currentFolderId || '');
   const [tags, setTags] = useState<string[]>([]);
   const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
   const [isGeneratingTags, setIsGeneratingTags] = useState(false);
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState('blank');
 
@@ -100,12 +103,39 @@ export const CreateNoteModal: React.FC<CreateNoteModalProps> = ({
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
-  const generateAITags = async () => {
+  const handleGenerateAITags = async () => {
+    if (!content) return;
+    
     setIsGeneratingTags(true);
-    setTimeout(() => {
-      setSuggestedTags(['research', 'ideas', 'productivity']);
+    try {
+      const generatedTags = await generateTags(content);
+      setSuggestedTags(generatedTags);
+    } catch (error) {
+      console.error('Failed to generate tags:', error);
+    } finally {
       setIsGeneratingTags(false);
-    }, 1000);
+    }
+  };
+
+  const handleGenerateSummary = async () => {
+    if (!content) return;
+    
+    setIsGeneratingSummary(true);
+    try {
+      const summary = await generateSummary(content);
+      setContent(prev => `${prev}\n\nSummary:\n${summary}`);
+    } catch (error) {
+      console.error('Failed to generate summary:', error);
+    } finally {
+      setIsGeneratingSummary(false);
+    }
+  };
+
+  const addSuggestedTag = (tag: string) => {
+    if (!tags.includes(tag)) {
+      setTags([...tags, tag]);
+    }
+    setSuggestedTags(suggestedTags.filter(t => t !== tag));
   };
 
   if (!isOpen) return null;
@@ -182,9 +212,19 @@ export const CreateNoteModal: React.FC<CreateNoteModalProps> = ({
 
               {/* Rich Text Editor */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Content
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Content
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleGenerateSummary}
+                    className="text-sm text-primary hover:text-primary-dark transition-colors"
+                    disabled={isGeneratingSummary || !content}
+                  >
+                    {isGeneratingSummary ? 'Generating...' : 'Generate Summary'}
+                  </button>
+                </div>
                 <RichTextEditor
                   content={content}
                   onChange={setContent}
@@ -220,9 +260,9 @@ export const CreateNoteModal: React.FC<CreateNoteModalProps> = ({
                   </label>
                   <button
                     type="button"
-                    onClick={generateAITags}
+                    onClick={handleGenerateAITags}
                     className="text-sm text-primary hover:text-primary-dark transition-colors"
-                    disabled={isGeneratingTags}
+                    disabled={isGeneratingTags || !content}
                   >
                     {isGeneratingTags ? 'Generating...' : 'Generate AI Tags'}
                   </button>
@@ -250,66 +290,57 @@ export const CreateNoteModal: React.FC<CreateNoteModalProps> = ({
                     className="flex-1 min-w-[100px] focus:outline-none bg-transparent"
                     placeholder={tags.length === 0 ? "Add tags..." : ""}
                     onChange={(e) => {
-                      const result = handleTagInput(e.target.value);
-                      if (result !== undefined) {
-                        e.target.value = result;
-                      }
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        const input = e.currentTarget.value.trim();
-                        if (input && !tags.includes(input)) {
-                          setTags([...tags, input]);
-                          e.currentTarget.value = '';
-                        }
-                      }
+                      const newValue = handleTagInput(e.target.value);
+                      e.target.value = newValue;
                     }}
                   />
                 </div>
 
                 {/* Suggested Tags */}
                 {suggestedTags.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {suggestedTags.map(tag => (
-                      <button
-                        key={tag}
-                        type="button"
-                        onClick={() => {
-                          if (!tags.includes(tag)) {
-                            setTags([...tags, tag]);
-                          }
-                        }}
-                        className="px-2 py-1 rounded-md bg-secondary/10 text-primary-dark text-sm hover:bg-secondary/20 transition-colors"
-                      >
-                        + {tag}
-                      </button>
-                    ))}
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-600 mb-1">Suggested tags:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {suggestedTags.map(tag => (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => addSuggestedTag(tag)}
+                          className="px-2 py-1 rounded-md bg-secondary/20 text-primary-dark text-sm hover:bg-secondary/30 transition-colors"
+                        >
+                          {tag}
+                        </button>
+                      ))}
+                    </div>
                   </div>
+                )}
+
+                {/* AI Error Message */}
+                {aiError && (
+                  <p className="mt-2 text-sm text-red-600">
+                    {aiError}
+                  </p>
                 )}
               </div>
             </div>
           </div>
 
           {/* Footer - Fixed */}
-          <div className="px-4 py-3 border-t mt-auto shrink-0">
-            <div className="flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                disabled={isCreating}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-primary text-white hover:bg-primary-dark rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={isCreating}
-              >
-                {isCreating ? 'Creating...' : 'Create Note'}
-              </button>
-            </div>
+          <div className="flex items-center justify-end gap-3 px-4 py-3 border-t shrink-0">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isCreating || !selectedFolderId || !title.trim()}
+              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50"
+            >
+              {isCreating ? 'Creating...' : 'Create Note'}
+            </button>
           </div>
         </form>
       </div>
