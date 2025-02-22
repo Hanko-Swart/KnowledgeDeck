@@ -1,4 +1,5 @@
 import type { AIService, AIResponse, TagGenerationResponse, SummaryGenerationResponse, SimilaritySearchResponse } from '@/types/ai';
+import { AICache } from './cache';
 
 export class HuggingFaceService implements AIService {
   private apiKey: string;
@@ -8,7 +9,8 @@ export class HuggingFaceService implements AIService {
   private static readonly MODELS = {
     summarization: 'facebook/bart-large-cnn',
     tagging: 'dbmdz/bert-large-cased-finetuned-conll03-english',
-    similarity: 'sentence-transformers/all-MiniLM-L6-v2'
+    similarity: 'sentence-transformers/all-MiniLM-L6-v2',
+    description: 'facebook/opt-350m'
   };
 
   constructor(apiKey: string) {
@@ -16,72 +18,99 @@ export class HuggingFaceService implements AIService {
   }
 
   private async query<T>(model: string, inputs: any): Promise<AIResponse<T>> {
-    try {
-      const response = await fetch(`${HuggingFaceService.API_URL}/${model}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ inputs })
-      });
+    const maxRetries = 3;
+    const baseDelay = 1000; // 1 second
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        const response = await fetch(`${HuggingFaceService.API_URL}/${model}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ inputs })
+        });
+
+        if (!response.ok) {
+          switch (response.status) {
+            case 503:
+              if (attempt < maxRetries - 1) {
+                // Wait with exponential backoff before retrying
+                await new Promise(resolve => setTimeout(resolve, baseDelay * Math.pow(2, attempt)));
+                continue;
+              }
+              throw new Error('Service is temporarily unavailable. Please try again later.');
+            case 429:
+              throw new Error('Rate limit exceeded. Please wait a moment before trying again.');
+            case 401:
+              throw new Error('Invalid API key. Please check your settings.');
+            default:
+              throw new Error(`API request failed with status: ${response.status}`);
+          }
+        }
+
+        const data = await response.json();
+        return {
+          success: true,
+          data: data as T
+        };
+      } catch (error) {
+        if (attempt === maxRetries - 1) {
+          console.error('HuggingFace API error:', error);
+          return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error occurred'
+          };
+        }
       }
-
-      const data = await response.json();
-      return {
-        success: true,
-        data: data as T
-      };
-    } catch (error) {
-      console.error('HuggingFace API error:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred'
-      };
     }
-  }
-
-  async generateTags(content: string): Promise<AIResponse<TagGenerationResponse>> {
-    interface NERResponse {
-      word: string;
-      score: number;
-      entity: string;
-    }
-
-    const response = await this.query<NERResponse[]>(HuggingFaceService.MODELS.tagging, content);
-    
-    if (!response.success || !response.data) {
-      return {
-        success: false,
-        error: response.error || 'Failed to generate tags'
-      };
-    }
-
-    // Process the NER results into tags
-    const entities = new Set(response.data
-      .filter(item => item.score > 0.5)
-      .map(item => item.word.toLowerCase()));
 
     return {
-      success: true,
-      data: {
-        tags: Array.from(entities),
-        confidence: 0.8 // Average confidence score
-      }
+      success: false,
+      error: 'Maximum retry attempts reached'
     };
   }
 
-  async generateSummary(content: string): Promise<AIResponse<SummaryGenerationResponse>> {
-    interface SummaryResponse {
-      summary_text: string;
-      score?: number;
+  async generateTags(content: string): Promise<AIResponse<TagGenerationResponse>> {
+    const cacheKey = AICache.createKey('tags', content);
+    const cached = await AICache.get<TagGenerationResponse>(cacheKey);
+    
+    if (cached) {
+      return { success: true, data: cached };
     }
 
-    const response = await this.query<SummaryResponse[]>(HuggingFaceService.MODELS.summarization, content);
+    const response = await this.query<TagGenerationResponse>(
+      HuggingFaceService.MODELS.tagging,
+      content
+    );
+
+    if (response.success && response.data) {
+      await AICache.set(cacheKey, response.data);
+    }
+
+    return response;
+  }
+
+  async generateSummary(content: string): Promise<AIResponse<SummaryGenerationResponse>> {
+    const cacheKey = AICache.createKey('summary', content);
+    const cached = await AICache.get<SummaryGenerationResponse>(cacheKey);
     
+    if (cached) {
+      return { success: true, data: cached };
+    }
+
+    // Format input for BART model - it expects plain text
+    const formattedContent = content
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 1024); // BART has a token limit, so we'll take first 1024 chars
+
+    const response = await this.query<any>(
+      HuggingFaceService.MODELS.summarization,
+      formattedContent
+    );
+
     if (!response.success || !response.data) {
       return {
         success: false,
@@ -89,51 +118,62 @@ export class HuggingFaceService implements AIService {
       };
     }
 
-    return {
-      success: true,
-      data: {
-        summary: response.data[0].summary_text,
-        confidence: response.data[0].score || 0.8
+    try {
+      // Handle different response formats from the model
+      let description = '';
+      
+      if (Array.isArray(response.data)) {
+        description = response.data[0]?.summary_text || '';
+      } else if (typeof response.data === 'object') {
+        description = response.data.summary_text || response.data.summary || '';
+      } else if (typeof response.data === 'string') {
+        description = response.data;
       }
-    };
+
+      description = description.trim();
+
+      // Ensure we have a valid description
+      if (!description) {
+        return {
+          success: false,
+          error: 'Generated description was empty'
+        };
+      }
+
+      const cleanedResponse = {
+        summary: description.length > 250 ? description.slice(0, 247) + '...' : description,
+        confidence: 0.8
+      };
+
+      await AICache.set(cacheKey, cleanedResponse);
+      return { success: true, data: cleanedResponse };
+    } catch (error) {
+      console.error('Error processing summary response:', error);
+      return {
+        success: false,
+        error: 'Failed to process the generated summary'
+      };
+    }
   }
 
   async findSimilarContent(content: string, items: string[]): Promise<AIResponse<SimilaritySearchResponse>> {
-    // Get embeddings for the query content
-    const queryResponse = await this.query<number[]>(HuggingFaceService.MODELS.similarity, content);
+    const cacheKey = AICache.createKey('similar', content + items.join(''));
+    const cached = await AICache.get<SimilaritySearchResponse>(cacheKey);
     
-    if (!queryResponse.success || !queryResponse.data) {
-      return {
-        success: false,
-        error: queryResponse.error || 'Failed to get query embeddings'
-      };
+    if (cached) {
+      return { success: true, data: cached };
     }
 
-    // Get embeddings for all items
-    const itemsResponse = await this.query<number[][]>(HuggingFaceService.MODELS.similarity, items);
-    
-    if (!itemsResponse.success || !itemsResponse.data) {
-      return {
-        success: false,
-        error: itemsResponse.error || 'Failed to get item embeddings'
-      };
+    const response = await this.query<SimilaritySearchResponse>(
+      HuggingFaceService.MODELS.similarity,
+      { content, items }
+    );
+
+    if (response.success && response.data) {
+      await AICache.set(cacheKey, response.data);
     }
 
-    // Calculate cosine similarity between query and items
-    const similarities = itemsResponse.data.map((embedding: number[], index: number) => ({
-      id: index.toString(),
-      score: this.cosineSimilarity(queryResponse.data, embedding)
-    }));
-
-    // Sort by similarity score
-    similarities.sort((a, b) => b.score - a.score);
-
-    return {
-      success: true,
-      data: {
-        similarItems: similarities
-      }
-    };
+    return response;
   }
 
   private cosineSimilarity(a: number[], b: number[]): number {
