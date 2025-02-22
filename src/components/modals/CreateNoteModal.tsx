@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { Folder } from '@/types/folder';
 import { saveNote } from '@/storage/noteStorage';
 import { RichTextEditor } from '@components/editor/RichTextEditor';
+import { noteTemplates } from '@/templates/noteTemplates';
 
 interface CreateNoteModalProps {
   isOpen: boolean;
@@ -25,6 +26,7 @@ export const CreateNoteModal: React.FC<CreateNoteModalProps> = ({
   const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
   const [isGeneratingTags, setIsGeneratingTags] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState('blank');
 
   const resetForm = () => {
     setTitle('');
@@ -32,6 +34,7 @@ export const CreateNoteModal: React.FC<CreateNoteModalProps> = ({
     setSelectedFolderId(currentFolderId || '');
     setTags([]);
     setSuggestedTags([]);
+    setSelectedTemplate('blank');
   };
 
   useEffect(() => {
@@ -41,6 +44,24 @@ export const CreateNoteModal: React.FC<CreateNoteModalProps> = ({
       setSelectedFolderId(currentFolderId || '');
     }
   }, [isOpen, currentFolderId]);
+
+  const handleTemplateChange = (templateId: string) => {
+    setSelectedTemplate(templateId);
+    const template = noteTemplates.find(t => t.id === templateId);
+    if (template) {
+      if (templateId !== 'blank') {
+        setContent(template.content);
+        if (!title) {
+          setTitle(`New ${template.name}`);
+        }
+      } else {
+        const isContentFromTemplate = noteTemplates.some(t => t.content === content);
+        if (isContentFromTemplate) {
+          setContent('');
+        }
+      }
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +74,7 @@ export const CreateNoteModal: React.FC<CreateNoteModalProps> = ({
         content,
         folderId: selectedFolderId,
         tags,
-        template: 'blank',
+        template: selectedTemplate,
       });
       onNoteCreated?.();
       onClose();
@@ -98,9 +119,9 @@ export const CreateNoteModal: React.FC<CreateNoteModalProps> = ({
       />
       
       {/* Modal */}
-      <div className="fixed inset-4 sm:inset-auto sm:top-[10%] sm:left-1/2 sm:-translate-x-1/2 sm:w-[400px] sm:max-h-[calc(100vh-10%-64px)] bg-white rounded-lg shadow-xl z-50 flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b">
+      <div className="fixed inset-4 sm:inset-auto sm:top-[5%] sm:left-1/2 sm:-translate-x-1/2 sm:w-[600px] sm:max-h-[90vh] bg-white rounded-lg shadow-xl z-50 flex flex-col">
+        {/* Header - Fixed */}
+        <div className="flex items-center justify-between px-4 py-3 border-b shrink-0">
           <h2 className="text-lg font-medium text-primary-dark">Create New Note</h2>
           <button
             onClick={onClose}
@@ -122,10 +143,28 @@ export const CreateNoteModal: React.FC<CreateNoteModalProps> = ({
           </button>
         </div>
 
-        {/* Content */}
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1">
-          <div className="flex-1 overflow-y-auto p-4">
-            <div className="space-y-4">
+        {/* Content - Scrollable */}
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-4 space-y-4">
+              {/* Template Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Template
+                </label>
+                <select
+                  value={selectedTemplate}
+                  onChange={(e) => handleTemplateChange(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  {noteTemplates.map(template => (
+                    <option key={template.id} value={template.id}>
+                      {template.name} - {template.description}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               {/* Title */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -252,8 +291,8 @@ export const CreateNoteModal: React.FC<CreateNoteModalProps> = ({
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="px-4 py-3 border-t mt-auto">
+          {/* Footer - Fixed */}
+          <div className="px-4 py-3 border-t mt-auto shrink-0">
             <div className="flex justify-end gap-3">
               <button
                 type="button"
