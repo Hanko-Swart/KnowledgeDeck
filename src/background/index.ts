@@ -17,7 +17,7 @@ chrome.runtime.onInstalled.addListener(async () => {
 });
 
 // Handle extension icon click
-chrome.action.onClicked.addListener(async (tab) => {
+chrome.action.onClicked.addListener(async (_tab) => {
   // The side panel will be shown automatically due to setPanelBehavior
   console.log('Extension icon clicked, opening side panel');
 });
@@ -29,6 +29,6 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   sendResponse({ status: 'received' });
 });
 
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, _tab) => {
+chrome.tabs.onUpdated.addListener(async (_tabId, _changeInfo, _tab) => {
   // ... existing code ...
 }); 
