@@ -30,7 +30,7 @@ export const FolderNavigation: React.FC<FolderNavigationProps> = ({
             onClick={onBack}
             className="p-1.5 rounded-full transition-colors hover:bg-accent"
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-5 w-5 text-foreground" />
           </button>
           <h1 className="text-lg font-medium text-foreground">
             {currentFolder.name}
@@ -41,7 +41,7 @@ export const FolderNavigation: React.FC<FolderNavigationProps> = ({
           onClick={() => setIsFolderPanelOpen(!isFolderPanelOpen)}
           className="p-1.5 rounded-full transition-colors hover:bg-accent"
         >
-          <Home className="h-5 w-5" />
+          <Home className="h-5 w-5 text-foreground" />
         </button>
       </div>
 
@@ -69,7 +69,7 @@ export const FolderNavigation: React.FC<FolderNavigationProps> = ({
                     setIsFolderPanelOpen(false);
                   }}
                 >
-                  <Home className="w-5 h-5 mr-2" />
+                  <Home className="w-5 h-5 mr-2 text-foreground" />
                   <span className="flex-1 truncate">{folder.name}</span>
                 </button>
               ))}

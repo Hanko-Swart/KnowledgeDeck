@@ -350,14 +350,14 @@ export const Sidebar: React.FC = () => {
                 size="sm"
                 onClick={() => setViewMode('list')}
               >
-                <List className="h-5 w-5" />
+                <List className="h-5 w-5 text-foreground" />
               </Button>
               <Button
                 variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
                 size="sm"
                 onClick={() => setViewMode('grid')}
               >
-                <Grid className="h-5 w-5" />
+                <Grid className="h-5 w-5 text-foreground" />
               </Button>
             </div>
           </div>
