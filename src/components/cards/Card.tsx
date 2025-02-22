@@ -38,32 +38,16 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, className = '
     const luminance = (0.299 * r + 0.587 * g + 0.114 * b);
     const isLight = luminance > 0.5;
 
-    // For light backgrounds, we use darker shades of the same color
-    // For dark backgrounds, we use lighter shades of white
-    const getShade = (opacity: number) => {
-      if (isLight) {
-        // Darken the base color for text on light backgrounds
-        const darkenAmount = 0.4; // 40% darker
-        const darkR = Math.max(r - darkenAmount, 0);
-        const darkG = Math.max(g - darkenAmount, 0);
-        const darkB = Math.max(b - darkenAmount, 0);
-        return `rgba(${darkR * 255}, ${darkG * 255}, ${darkB * 255}, ${opacity})`;
-      } else {
-        // Use white with opacity for text on dark backgrounds
-        return `rgba(255, 255, 255, ${opacity})`;
-      }
-    };
-
     return {
-      background: baseColor,
-      borderColor: isLight ? `${baseColor}70` : 'rgba(255, 255, 255, 0.2)',
+      background: '#ffffff',
+      borderColor: `${baseColor}15`,
       accentColor: baseColor,
-      textColor: getShade(1), // Full opacity for main text
-      mutedTextColor: getShade(0.8), // 80% opacity for secondary text
-      lightTextColor: getShade(0.6), // 60% opacity for tertiary text
-      tagBg: isLight ? `${baseColor}30` : 'rgba(255, 255, 255, 0.15)',
-      tagText: isLight ? getShade(1) : '#ffffff',
-      iconBg: isLight ? `${baseColor}20` : 'rgba(255, 255, 255, 0.15)',
+      textColor: '#1a4d63',
+      mutedTextColor: 'rgba(26, 77, 99, 0.8)',
+      lightTextColor: 'rgba(26, 77, 99, 0.6)',
+      tagBg: `${baseColor}15`,
+      tagText: isLight ? '#1a4d63' : baseColor,
+      iconBg: `${baseColor}10`,
     };
   };
 

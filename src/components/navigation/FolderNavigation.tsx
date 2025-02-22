@@ -6,18 +6,19 @@ interface FolderNavigationProps {
   currentFolder: Folder;
   onBack: () => void;
   onFolderSelect: (folderId: string) => void;
+  folders: Folder[];
 }
 
 export const FolderNavigation: React.FC<FolderNavigationProps> = ({
   currentFolder,
   onBack,
   onFolderSelect,
+  folders,
 }) => {
   const [isFolderPanelOpen, setIsFolderPanelOpen] = useState(false);
 
   // Generate color styles based on the folder's color
   const getColorStyles = (baseColor: string = '#10656d') => {
-    // Calculate luminance to determine if we should use light or dark text
     const hex = baseColor.replace('#', '');
     const r = parseInt(hex.substr(0, 2), 16) / 255;
     const g = parseInt(hex.substr(2, 2), 16) / 255;
@@ -33,7 +34,7 @@ export const FolderNavigation: React.FC<FolderNavigationProps> = ({
     };
   };
 
-  const colors = getColorStyles(currentFolder.color);
+  const colors = getColorStyles(currentFolder?.color || '#dd6670'); // Use folder color or default to red
 
   return (
     <div className="relative">
@@ -42,17 +43,15 @@ export const FolderNavigation: React.FC<FolderNavigationProps> = ({
         className="flex items-center justify-between h-14 px-4 border-b transition-colors"
         style={{ 
           background: colors.background,
-          borderColor: 'rgba(0, 0, 0, 0.1)'
+          borderColor: 'rgba(0, 0, 0, 0.1)',
+          color: colors.textColor
         }}
       >
         <div className="flex items-center gap-3">
           <button
             onClick={onBack}
-            className="p-1.5 rounded-full transition-colors"
-            style={{ 
-              backgroundColor: colors.iconBg,
-              color: colors.textColor
-            }}
+            className="p-1.5 rounded-full transition-colors hover:bg-black/10"
+            style={{ color: colors.textColor }}
           >
             <svg
               className="w-5 h-5"
@@ -68,21 +67,15 @@ export const FolderNavigation: React.FC<FolderNavigationProps> = ({
               />
             </svg>
           </button>
-          <h1 
-            className="text-lg font-medium"
-            style={{ color: colors.textColor }}
-          >
+          <h1 className="text-lg font-medium" style={{ color: colors.textColor }}>
             {currentFolder.name}
           </h1>
         </div>
 
         <button
           onClick={() => setIsFolderPanelOpen(!isFolderPanelOpen)}
-          className="p-1.5 rounded-full transition-colors"
-          style={{ 
-            backgroundColor: isFolderPanelOpen ? colors.iconBg : 'transparent',
-            color: colors.textColor
-          }}
+          className="p-1.5 rounded-full transition-colors hover:bg-black/10"
+          style={{ color: colors.textColor }}
         >
           <svg
             className="w-5 h-5"
@@ -116,6 +109,7 @@ export const FolderNavigation: React.FC<FolderNavigationProps> = ({
               setIsFolderPanelOpen(false);
             }}
             selectedFolderId={currentFolder.id}
+            folders={folders}
           />
         </div>
       </div>
