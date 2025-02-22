@@ -18,9 +18,10 @@ interface CardProps {
   onClick?: (id: string) => void;
   onEdit?: (id: string) => void;
   className?: string;
+  folderColor?: string;
 }
 
-export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, className = '' }) => {
+export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, className = '', folderColor }) => {
   const handleClick = () => onClick?.(data.id);
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -29,15 +30,44 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, className = '
 
   // Generate complementary colors based on the folder color
   const getColorStyles = (baseColor: string = '#10656d') => {
+    // Calculate luminance to determine if we should use light or dark text
+    const hex = baseColor.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16) / 255;
+    const g = parseInt(hex.substr(2, 2), 16) / 255;
+    const b = parseInt(hex.substr(4, 2), 16) / 255;
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b);
+    const isLight = luminance > 0.5;
+
+    // For light backgrounds, we use darker shades of the same color
+    // For dark backgrounds, we use lighter shades of white
+    const getShade = (opacity: number) => {
+      if (isLight) {
+        // Darken the base color for text on light backgrounds
+        const darkenAmount = 0.4; // 40% darker
+        const darkR = Math.max(r - darkenAmount, 0);
+        const darkG = Math.max(g - darkenAmount, 0);
+        const darkB = Math.max(b - darkenAmount, 0);
+        return `rgba(${darkR * 255}, ${darkG * 255}, ${darkB * 255}, ${opacity})`;
+      } else {
+        // Use white with opacity for text on dark backgrounds
+        return `rgba(255, 255, 255, ${opacity})`;
+      }
+    };
+
     return {
-      background: `linear-gradient(to right bottom, ${baseColor}02, ${baseColor}05)`,
-      borderColor: `${baseColor}15`,
-      hoverBorder: `${baseColor}30`,
+      background: baseColor,
+      borderColor: isLight ? `${baseColor}70` : 'rgba(255, 255, 255, 0.2)',
       accentColor: baseColor,
+      textColor: getShade(1), // Full opacity for main text
+      mutedTextColor: getShade(0.8), // 80% opacity for secondary text
+      lightTextColor: getShade(0.6), // 60% opacity for tertiary text
+      tagBg: isLight ? `${baseColor}30` : 'rgba(255, 255, 255, 0.15)',
+      tagText: isLight ? getShade(1) : '#ffffff',
+      iconBg: isLight ? `${baseColor}20` : 'rgba(255, 255, 255, 0.15)',
     };
   };
 
-  const colors = getColorStyles(data.folderColor);
+  const colors = getColorStyles(folderColor || data.folderColor);
 
   return (
     <div
@@ -45,7 +75,7 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, className = '
       style={{
         background: colors.background,
         borderColor: colors.borderColor,
-        '--hover-border': colors.hoverBorder,
+        '--hover-border': colors.accentColor,
         '--accent-color': colors.accentColor,
       } as React.CSSProperties}
       onClick={handleClick}
@@ -55,12 +85,12 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, className = '
         <div className="flex items-center gap-2">
           <span 
             className="p-1.5 rounded-md"
-            style={{ backgroundColor: `${colors.accentColor}10` }}
+            style={{ backgroundColor: colors.iconBg }}
           >
             {data.type === 'bookmark' ? (
               <svg 
                 className="w-4 h-4"
-                style={{ color: colors.accentColor }}
+                style={{ color: colors.textColor }}
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
@@ -71,7 +101,7 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, className = '
             ) : (
               <svg 
                 className="w-4 h-4"
-                style={{ color: colors.accentColor }}
+                style={{ color: colors.textColor }}
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
@@ -83,12 +113,12 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, className = '
           </span>
           <div>
             <h3 
-              className="text-base font-medium leading-tight transition-colors"
-              style={{ color: colors.accentColor }}
+              className="text-base font-medium leading-tight"
+              style={{ color: colors.textColor }}
             >
               {data.title}
             </h3>
-            <span className="text-xs" style={{ color: `${colors.accentColor}60` }}>
+            <span className="text-xs" style={{ color: colors.mutedTextColor }}>
               {new Date(data.createdAt).toLocaleDateString()}
             </span>
           </div>
@@ -96,13 +126,11 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, className = '
         <button
           onClick={handleEdit}
           className="p-1.5 rounded-md transition-colors -mr-1"
-          style={{ 
-            color: `${colors.accentColor}60`,
-            ['--hover-bg' as string]: `${colors.accentColor}10`
-          }}
+          style={{ backgroundColor: colors.iconBg }}
         >
           <svg
             className="w-4 h-4"
+            style={{ color: colors.textColor }}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -121,7 +149,7 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, className = '
       {data.description && (
         <p 
           className="text-sm leading-relaxed mb-3 line-clamp-3"
-          style={{ color: `${colors.accentColor}80` }}
+          style={{ color: colors.mutedTextColor }}
         >
           {data.description}
         </p>
@@ -130,8 +158,8 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, className = '
       {/* URL (for bookmarks) */}
       {data.type === 'bookmark' && data.url && (
         <div 
-          className="flex items-center text-xs mb-3 transition-colors"
-          style={{ color: `${colors.accentColor}70` }}
+          className="flex items-center text-xs mb-3"
+          style={{ color: colors.mutedTextColor }}
         >
           <svg
             className="w-3 h-3 mr-1.5 flex-shrink-0"
@@ -156,10 +184,10 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, className = '
           {data.tags.map(tag => (
             <span
               key={tag}
-              className="px-2 py-0.5 text-xs font-medium rounded-md transition-colors"
+              className="px-2 py-0.5 text-xs font-medium rounded-md"
               style={{ 
-                backgroundColor: `${colors.accentColor}08`,
-                color: `${colors.accentColor}90`,
+                backgroundColor: colors.tagBg,
+                color: colors.tagText,
               }}
             >
               {tag}

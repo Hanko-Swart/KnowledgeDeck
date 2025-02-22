@@ -71,8 +71,8 @@ export const FolderCard: React.FC<FolderCardProps> = ({
       textColor: getShade(1), // Full opacity for main text
       mutedTextColor: getShade(0.8), // 80% opacity for secondary text
       lightTextColor: getShade(0.6), // 60% opacity for tertiary text
-      tagBg: isLight ? `${baseColor}20` : 'rgba(255, 255, 255, 0.15)',
-      tagText: isLight ? baseColor : '#ffffff',
+      tagBg: isLight ? `${baseColor}30` : 'rgba(255, 255, 255, 0.15)',
+      tagText: isLight ? getShade(1) : '#ffffff', // Use the same darkened color for light backgrounds
       iconBg: isLight ? `${baseColor}20` : 'rgba(255, 255, 255, 0.15)',
     };
   };
@@ -94,19 +94,64 @@ export const FolderCard: React.FC<FolderCardProps> = ({
         borderColor: colors.borderColor,
       }}
     >
-      {/* Color Picker Button */}
-      <div className="absolute top-3 right-3 z-[100]">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2">
+          <span 
+            className="p-1.5 rounded-lg relative"
+            style={{ backgroundColor: colors.iconBg }}
+          >
+            <svg
+              className="w-5 h-5"
+              style={{ color: colors.textColor }}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+              />
+            </svg>
+            {/* Color indicator dot */}
+            {folder.color && (
+              <span 
+                className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-white"
+                style={{ backgroundColor: folder.color }}
+              />
+            )}
+          </span>
+          <div>
+            <h3 
+              className="text-base font-medium leading-tight"
+              style={{ color: colors.textColor }}
+            >
+              {folder.name}
+            </h3>
+            <span 
+              className="text-xs"
+              style={{ color: colors.mutedTextColor }}
+            >
+              {items.length} items
+            </span>
+          </div>
+        </div>
+
+        {/* Color Picker Button */}
         <button
-          className="p-1.5 rounded-lg hover:bg-black/5 transition-colors"
+          className="p-1.5 rounded-lg transition-colors"
           onClick={(e) => {
             e.stopPropagation();
             setIsColorPickerOpen(!isColorPickerOpen);
           }}
           title="Change folder color"
+          style={{ backgroundColor: colors.iconBg }}
         >
           <svg
             className="w-4 h-4"
-            style={{ color: colors.accentColor }}
+            style={{ color: colors.textColor }}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -161,50 +206,6 @@ export const FolderCard: React.FC<FolderCardProps> = ({
             </div>
           </>
         )}
-      </div>
-
-      {/* Header */}
-      <div className="flex items-center gap-2 mb-3">
-        <span 
-          className="p-1.5 rounded-lg relative"
-          style={{ backgroundColor: colors.iconBg }}
-        >
-          <svg
-            className="w-5 h-5"
-            style={{ color: colors.textColor }}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-            />
-          </svg>
-          {/* Color indicator dot */}
-          {folder.color && (
-            <span 
-              className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-white"
-              style={{ backgroundColor: folder.color }}
-            />
-          )}
-        </span>
-        <div>
-          <h3 
-            className="text-base font-medium leading-tight"
-            style={{ color: colors.textColor }}
-          >
-            {folder.name}
-          </h3>
-          <span 
-            className="text-xs"
-            style={{ color: colors.mutedTextColor }}
-          >
-            {items.length} items
-          </span>
-        </div>
       </div>
 
       {/* Preview */}

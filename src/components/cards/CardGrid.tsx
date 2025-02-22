@@ -6,13 +6,15 @@ interface CardGridProps {
   onCardClick?: (id: string) => void;
   onCardEdit?: (id: string) => void;
   viewMode?: 'list' | 'grid';
+  folderColor?: string;
 }
 
 export const CardGrid: React.FC<CardGridProps> = ({
   cards,
   onCardClick,
   onCardEdit,
-  viewMode = 'grid'
+  viewMode = 'grid',
+  folderColor
 }) => {
   if (cards.length === 0) {
     return (
@@ -50,6 +52,7 @@ export const CardGrid: React.FC<CardGridProps> = ({
           onClick={onCardClick}
           onEdit={onCardEdit}
           className={viewMode === 'list' ? 'flex-row' : ''}
+          folderColor={folderColor}
         />
       ))}
     </div>

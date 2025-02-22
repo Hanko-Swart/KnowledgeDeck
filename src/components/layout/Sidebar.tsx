@@ -262,6 +262,7 @@ export const Sidebar: React.FC = () => {
               viewMode={viewMode}
               onCardClick={handleCardClick}
               onCardEdit={handleCardEdit}
+              folderColor={currentFolder.color}
             />
           </div>
         </>
