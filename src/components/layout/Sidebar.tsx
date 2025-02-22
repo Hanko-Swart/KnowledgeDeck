@@ -115,9 +115,9 @@ export const Sidebar: React.FC = () => {
     console.log('Adding bookmark to folder:', folderId);
   };
 
-  const handleAddNote = (folderId: string) => {
-    // TODO: Implement note creation
-    console.log('Adding note to folder:', folderId);
+  const handleAddNote = async (folderId: string) => {
+    // We don't need to implement anything here anymore since the modal handles note creation
+    console.log('Note creation is now handled by the modal');
   };
 
   const handleAddFlowDiagram = (folderId: string) => {
