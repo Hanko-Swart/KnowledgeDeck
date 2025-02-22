@@ -134,29 +134,10 @@ export const Sidebar: React.FC = () => {
     setMockFolders(prev => [...prev, newFolder]);
   };
 
-  // Generate color styles based on the folder's color
-  const getColorStyles = (baseColor: string = '#10656d') => {
-    const hex = baseColor.replace('#', '');
-    const r = parseInt(hex.substr(0, 2), 16) / 255;
-    const g = parseInt(hex.substr(2, 2), 16) / 255;
-    const b = parseInt(hex.substr(4, 2), 16) / 255;
-    const luminance = (0.299 * r + 0.587 * g + 0.114 * b);
-    const isLight = luminance > 0.5;
-
-    return {
-      background: baseColor,
-      textColor: isLight ? '#1a4d63' : '#ffffff',
-      mutedTextColor: isLight ? 'rgba(26, 77, 99, 0.8)' : 'rgba(255, 255, 255, 0.8)',
-      iconBg: isLight ? `${baseColor}20` : 'rgba(255, 255, 255, 0.15)',
-    };
-  };
-
-  const colors = currentFolder?.color ? getColorStyles(currentFolder.color) : null;
-
   return (
     <div className="flex flex-col h-screen bg-white">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-primary text-white">
+      <div className="flex items-center justify-between px-4 py-3 bg-gray-900 text-white">
         <div className="flex items-center gap-2">
           <svg
             className="w-6 h-6"
@@ -220,24 +201,24 @@ export const Sidebar: React.FC = () => {
           <div className="px-4 py-2 flex items-center justify-end border-b border-gray-200">
             <div className="flex items-center gap-2">
               <button
-                className={`p-1.5 rounded transition-colors`}
+                className={`p-1.5 rounded transition-colors ${
+                  viewMode === 'list'
+                    ? 'bg-gray-100 text-gray-900'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                }`}
                 onClick={() => setViewMode('list')}
-                style={{
-                  backgroundColor: viewMode === 'list' ? colors?.iconBg : 'transparent',
-                  color: viewMode === 'list' ? colors?.textColor : colors?.mutedTextColor
-                }}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                 </svg>
               </button>
               <button
-                className={`p-1.5 rounded transition-colors`}
+                className={`p-1.5 rounded transition-colors ${
+                  viewMode === 'grid'
+                    ? 'bg-gray-100 text-gray-900'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                }`}
                 onClick={() => setViewMode('grid')}
-                style={{
-                  backgroundColor: viewMode === 'grid' ? colors?.iconBg : 'transparent',
-                  color: viewMode === 'grid' ? colors?.textColor : colors?.mutedTextColor
-                }}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
@@ -253,7 +234,6 @@ export const Sidebar: React.FC = () => {
               viewMode={viewMode}
               onCardClick={handleCardClick}
               onCardEdit={handleCardEdit}
-              folderColor={currentFolder.color}
             />
           </div>
         </>
