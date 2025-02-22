@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import type { Folder } from '@/types/folder';
 import type { CardData } from '@components/cards/Card';
-import { 
-  FolderRounded,
-  EditRounded,
-  DeleteRounded
-} from '@mui/icons-material';
+import {
+  Folder as FolderIcon,
+  MoreVertical,
+  Edit,
+  Trash,
+  Palette
+} from 'lucide-react';
 
 interface FolderCardProps {
   folder: Folder;
@@ -57,7 +59,7 @@ export const FolderCard: React.FC<FolderCardProps> = ({
       <div className="flex items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-2">
           <span className="p-1.5 rounded-lg bg-gray-100">
-            <FolderRounded className="w-5 h-5 text-gray-700" />
+            <FolderIcon className="h-5 w-5" />
           </span>
           <div>
             <h3 className="text-base font-medium leading-tight text-gray-900">
@@ -73,13 +75,13 @@ export const FolderCard: React.FC<FolderCardProps> = ({
             onClick={handleEdit}
             className="p-1.5 rounded-md transition-colors bg-gray-100 hover:bg-gray-200"
           >
-            <EditRounded className="w-4 h-4 text-gray-700" />
+            <Edit className="h-4 w-4" />
           </button>
           <button
             onClick={handleDelete}
             className="p-1.5 rounded-md transition-colors bg-gray-100 hover:bg-red-100"
           >
-            <DeleteRounded className="w-4 h-4 text-gray-700 hover:text-red-600" />
+            <Trash className="h-4 w-4" />
           </button>
         </div>
       </div>

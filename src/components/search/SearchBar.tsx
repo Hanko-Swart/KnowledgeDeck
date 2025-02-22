@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SearchRounded } from '@mui/icons-material';
+import { Search } from 'lucide-react';
 
 interface SearchBarProps {
   onSearch?: (query: string) => void;
@@ -26,7 +26,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
         type="submit"
         className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary-dark"
       >
-        <SearchRounded className="w-5 h-5" />
+        <Search className="h-5 w-5 text-gray-400" />
       </button>
     </form>
   );

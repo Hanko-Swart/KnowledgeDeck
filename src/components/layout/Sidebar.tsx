@@ -12,21 +12,29 @@ import { getNotes } from '@/storage/noteStorage';
 import { BottomActionBar } from '@components/layout/BottomActionBar';
 import { AISettings } from '@components/settings/AISettings';
 import { getAllBookmarks } from '@/storage/bookmarkStorage';
-import { 
-  FolderOutlined, 
-  NoteAddOutlined, 
-  BookmarkAddOutlined, 
-  AccountTreeOutlined,
-  SettingsRounded,
-  ViewListRounded,
-  GridViewRounded,
-  FileUploadRounded,
-  FileDownloadRounded,
-  SyncRounded,
-  CloseRounded
-} from '@mui/icons-material';
+import {
+  Folder as FolderIcon,
+  FileText,
+  Bookmark,
+  GitBranch,
+  Settings,
+  List,
+  Grid,
+  Upload,
+  Download,
+  RefreshCw,
+  X
+} from 'lucide-react';
 import { ConfirmationModal } from '@components/modals/ConfirmationModal';
 import { CreateFolderModal } from '@components/modals/CreateFolderModal';
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
 export const Sidebar: React.FC = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
@@ -52,7 +60,7 @@ export const Sidebar: React.FC = () => {
     tags: note.tags,
     createdAt: note.createdAt,
     updatedAt: note.updatedAt,
-    folderId: note.folderId,
+    folderId: note.folderId || undefined,
   });
 
   // Load folders and notes from storage on component mount
@@ -311,12 +319,14 @@ export const Sidebar: React.FC = () => {
       {/* Main Header */}
       <div className="flex items-center justify-between px-4 h-14 bg-white border-b border-gray-200">
         <h1 className="text-xl font-semibold text-primary-dark">KnowledgeDeck</h1>
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => setIsSettingsOpen(true)}
-          className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
+          className="text-gray-600"
         >
-          <SettingsRounded className="w-5 h-5" />
-        </button>
+          <Settings className="h-5 w-5" />
+        </Button>
       </div>
 
       {/* Search and Navigation */}
@@ -335,26 +345,20 @@ export const Sidebar: React.FC = () => {
           <div className="flex items-center justify-between h-14 px-4 bg-white border-b border-gray-200">
             <h2 className="text-lg font-medium text-gray-900">My Folders</h2>
             <div className="flex items-center gap-2">
-              <button
-                className={`p-1.5 rounded transition-colors ${
-                  viewMode === 'list'
-                    ? 'bg-gray-100 text-gray-900'
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                }`}
+              <Button
+                variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                size="sm"
                 onClick={() => setViewMode('list')}
               >
-                <ViewListRounded className="w-5 h-5" />
-              </button>
-              <button
-                className={`p-1.5 rounded transition-colors ${
-                  viewMode === 'grid'
-                    ? 'bg-gray-100 text-gray-900'
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                }`}
+                <List className="h-5 w-5" />
+              </Button>
+              <Button
+                variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+                size="sm"
                 onClick={() => setViewMode('grid')}
               >
-                <GridViewRounded className="w-5 h-5" />
-              </button>
+                <Grid className="h-5 w-5" />
+              </Button>
             </div>
           </div>
         )}
@@ -382,7 +386,7 @@ export const Sidebar: React.FC = () => {
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center h-64 text-gray-400">
-                <FolderOutlined className="w-16 h-16 mb-4" />
+                <FolderIcon className="w-16 h-16 mb-4" />
                 <p className="text-sm text-center">
                   No folders yet. Create your first folder to get started!
                   <br />
@@ -407,32 +411,38 @@ export const Sidebar: React.FC = () => {
               />
             ) : (
               <div className="flex flex-col items-center justify-center h-64 text-gray-400">
-                <NoteAddOutlined className="w-16 h-16 mb-4" />
+                <FileText className="w-16 h-16 mb-4" />
                 <p className="text-sm text-center">
                   This folder is empty. Add some content to get started!
                   <br />
                   <div className="flex gap-2 mt-2">
-                    <button
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => handleAddNote(currentFolder.id)}
-                      className="text-primary-dark hover:text-primary transition-colors flex items-center gap-1"
+                      className="flex items-center gap-1"
                     >
-                      <NoteAddOutlined className="w-4 h-4" />
+                      <FileText className="h-4 w-4" />
                       Add Note
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => handleAddBookmark(currentFolder.id)}
-                      className="text-primary-dark hover:text-primary transition-colors flex items-center gap-1"
+                      className="flex items-center gap-1"
                     >
-                      <BookmarkAddOutlined className="w-4 h-4" />
+                      <Bookmark className="h-4 w-4" />
                       Add Bookmark
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => handleAddFlowDiagram(currentFolder.id)}
-                      className="text-primary-dark hover:text-primary transition-colors flex items-center gap-1"
+                      className="flex items-center gap-1"
                     >
-                      <AccountTreeOutlined className="w-4 h-4" />
+                      <GitBranch className="h-4 w-4" />
                       Add Flow
-                    </button>
+                    </Button>
                   </div>
                 </p>
               </div>
@@ -464,51 +474,55 @@ export const Sidebar: React.FC = () => {
         onCreateFolder={handleCreateFolder}
       />
 
-      {isSettingsOpen && (
-        <div className="fixed inset-0 z-50">
-          <div 
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setIsSettingsOpen(false)}
-          />
-          <div className="absolute inset-4 sm:inset-auto sm:top-[5%] sm:left-1/2 sm:-translate-x-1/2 sm:w-[600px] sm:max-h-[90vh] bg-white rounded-lg shadow-xl overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b">
-              <h2 className="text-lg font-medium">Settings</h2>
-              <button
-                onClick={() => setIsSettingsOpen(false)}
-                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <CloseRounded className="w-5 h-5 text-gray-500" />
-              </button>
+      {/* Settings Dialog */}
+      <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Settings</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            {/* Theme Toggle */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">Theme</h3>
+              <ThemeToggle />
             </div>
-            <div className="p-4 space-y-6 overflow-y-auto max-h-[calc(90vh-8rem)]">
-              {/* Quick Actions */}
-              <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-3">Quick Actions</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <button className="flex items-center justify-center gap-2 p-3 text-sm text-primary-dark hover:bg-secondary/10 rounded-lg transition-colors border border-gray-200">
-                    <FileUploadRounded className="w-5 h-5" />
-                    Import Bookmarks
-                  </button>
-                  <button className="flex items-center justify-center gap-2 p-3 text-sm text-primary-dark hover:bg-secondary/10 rounded-lg transition-colors border border-gray-200">
-                    <FileDownloadRounded className="w-5 h-5" />
-                    Export Data
-                  </button>
-                  <button className="flex items-center justify-center gap-2 p-3 text-sm text-primary-dark hover:bg-secondary/10 rounded-lg transition-colors border border-gray-200">
-                    <SyncRounded className="w-5 h-5" />
-                    Sync Status
-                  </button>
-                </div>
-              </div>
 
-              {/* AI Settings */}
-              <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-3">AI Settings</h3>
-                <AISettings />
+            {/* Quick Actions */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">Quick Actions</h3>
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2 text-primary-dark hover:bg-secondary/10"
+                >
+                  <Upload className="h-5 w-5" />
+                  Import Bookmarks
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2 text-primary-dark hover:bg-secondary/10"
+                >
+                  <Download className="h-5 w-5" />
+                  Export Data
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2 text-primary-dark hover:bg-secondary/10"
+                >
+                  <RefreshCw className="h-5 w-5" />
+                  Sync Status
+                </Button>
               </div>
+            </div>
+
+            {/* AI Settings */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">AI Settings</h3>
+              <AISettings />
             </div>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
 
       {/* Confirmation Modal */}
       <ConfirmationModal

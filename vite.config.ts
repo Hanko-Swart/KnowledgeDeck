@@ -4,7 +4,16 @@ import { resolve } from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  plugins: [react()],
+  plugins: [
+    react({
+      // Ignore "use client" directives
+      babel: {
+        parserOpts: {
+          plugins: ['typescript', 'jsx'],
+        },
+      },
+    }),
+  ],
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
@@ -25,13 +34,21 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        background: resolve(__dirname, 'src/background/index.ts'),
-        content: resolve(__dirname, 'src/content/index.ts'),
+        background: resolve(__dirname, 'src/background.ts'),
+        content: resolve(__dirname, 'src/content.ts'),
+        db: resolve(__dirname, 'src/db.ts'),
       },
       output: {
-        entryFileNames: '[name].js',
+        entryFileNames: mode === 'development' ? '[name].js' : '[name].[hash].js',
         chunkFileNames: mode === 'development' ? '[name].js' : '[name].[hash].js',
         assetFileNames: mode === 'development' ? '[name].[ext]' : '[name].[hash].[ext]',
+      },
+      onwarn(warning, warn) {
+        // Ignore "use client" directive warnings
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
+          return;
+        }
+        warn(warning);
       },
     },
   },

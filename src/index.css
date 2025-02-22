@@ -4,48 +4,71 @@
 
 @layer base {
   :root {
+    /* Base colors */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 200 33% 16%; /* #0c3547 - brand-dark */
+
+    /* Brand colors */
+    --primary: 187 73% 24%;    /* #10656d - brand-default */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 39 53% 86%;   /* #ede2cc - highlight */
+    --secondary-foreground: 200 33% 16%;
+
+    --accent: 355 57% 66%;     /* #dd6670 - accent-default */
+    --accent-foreground: 0 0% 100%;
+
+    /* UI colors */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 200 33% 16%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 187 73% 24%;      /* #10656d */
-    --primary-foreground: 210 40% 98%;
-    --secondary: 39 53% 86%;     /* #ede2cc */
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --accent: 355 57% 66%;       /* #dd6670 */
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --popover-foreground: 200 33% 16%;
+
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
+
+    /* UI elements */
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 187 73% 24%;       /* Same as primary */
     --radius: 0.5rem;
   }
-  
+
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 187 73% 24%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 39 53% 86%;
-    --secondary-foreground: 210 40% 98%;
-    --accent: 355 57% 66%;
-    --accent-foreground: 210 40% 98%;
+    --background: 200 33% 16%; /* #0c3547 - brand-dark */
+    --foreground: 0 0% 100%;
+
+    /* Brand colors in dark mode */
+    --primary: 187 73% 24%;    /* #10656d - brand-default */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 39 53% 86%;   /* #ede2cc - highlight */
+    --secondary-foreground: 200 33% 16%;
+
+    --accent: 355 57% 66%;     /* #dd6670 - accent-default */
+    --accent-foreground: 0 0% 100%;
+
+    /* UI colors in dark mode */
+    --card: 200 33% 16%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 200 33% 16%;
+    --popover-foreground: 0 0% 100%;
+
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
+
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
+
+    /* UI elements in dark mode */
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 187 73% 24%;       /* Same as primary */
   }
 
   html {
@@ -54,16 +77,17 @@
   
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
 @layer components {
   .card {
-    @apply bg-card rounded-lg shadow-md p-4 transition-all duration-200;
+    @apply bg-card text-card-foreground rounded-lg shadow-sm p-4 transition-all duration-200 border border-border;
   }
 
   .card:hover {
-    @apply shadow-lg transform -translate-y-1;
+    @apply shadow-md transform -translate-y-1;
   }
 
   .btn {
@@ -84,8 +108,7 @@
 
   /* TipTap Editor Styles */
   .ProseMirror {
-    @apply text-primary-dark;
-    min-height: 200px;
+    @apply text-foreground min-h-[200px];
   }
 
   .ProseMirror p {
@@ -109,7 +132,7 @@
   }
 
   .ProseMirror blockquote {
-    @apply border-l-4 border-gray-300 pl-4 italic my-4;
+    @apply border-l-4 border-muted pl-4 italic my-4;
   }
 
   .ProseMirror .task-list {
@@ -125,20 +148,27 @@
   }
 
   .ProseMirror .task-list li > label > input[type="checkbox"] {
-    @apply rounded border-gray-300 text-primary focus:ring-primary;
+    @apply rounded border-input text-primary focus:ring-ring;
   }
 
   .ProseMirror mark {
-    @apply bg-yellow-200 px-1 rounded;
+    @apply bg-secondary/50 px-1 rounded;
   }
 
   .ProseMirror p.is-editor-empty:first-child::before {
-    @apply text-gray-400 float-left h-0 pointer-events-none;
+    @apply text-muted-foreground float-left h-0 pointer-events-none;
     content: attr(data-placeholder);
   }
+
+  /* Custom component styles */
+  .knowledge-deck-card {
+    @apply bg-card text-card-foreground rounded-lg shadow-sm p-4 transition-all duration-200 border;
+  }
+
+  .knowledge-deck-card:hover {
+    @apply shadow-md -translate-y-1;
+  }
 }
-
-
 
 @layer base {
   * {

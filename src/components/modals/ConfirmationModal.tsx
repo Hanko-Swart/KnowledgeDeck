@@ -1,9 +1,8 @@
 import React from 'react';
-import { 
-  WarningRounded,
-  ErrorRounded,
-  InfoRounded
-} from '@mui/icons-material';
+import {
+  AlertTriangle,
+  X
+} from 'lucide-react';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -32,17 +31,17 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     switch (type) {
       case 'danger':
         return {
-          icon: <ErrorRounded className="w-6 h-6 text-red-600" />,
+          icon: <AlertTriangle className="h-6 w-6 text-destructive" />,
           button: 'bg-red-600 hover:bg-red-700 focus:ring-red-500',
         };
       case 'warning':
         return {
-          icon: <WarningRounded className="w-6 h-6 text-yellow-600" />,
+          icon: <AlertTriangle className="h-6 w-6 text-yellow-600" />,
           button: 'bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500',
         };
       default:
         return {
-          icon: <InfoRounded className="w-6 h-6 text-blue-600" />,
+          icon: <AlertTriangle className="h-6 w-6 text-blue-600" />,
           button: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
         };
     }

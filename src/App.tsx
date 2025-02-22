@@ -1,11 +1,14 @@
 import React from 'react';
 import { Sidebar } from '@components/layout/Sidebar';
+import { ThemeProvider } from '@/components/theme/ThemeProvider';
 
 function App() {
   return (
-    <div className="w-full h-screen bg-secondary">
-      <Sidebar />
-    </div>
+    <ThemeProvider defaultTheme="light" storageKey="knowledge-deck-theme">
+      <div className="app">
+        <Sidebar />
+      </div>
+    </ThemeProvider>
   );
 }
 

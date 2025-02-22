@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import type { Folder } from '@/types/folder';
-import { 
-  ChevronLeftRounded,
-  MenuRounded,
-  FolderRounded
-} from '@mui/icons-material';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Home
+} from 'lucide-react';
 
 interface FolderNavigationProps {
   currentFolder: Folder;
@@ -30,7 +30,7 @@ export const FolderNavigation: React.FC<FolderNavigationProps> = ({
             onClick={onBack}
             className="p-1.5 rounded-full transition-colors hover:bg-gray-100"
           >
-            <ChevronLeftRounded className="w-5 h-5 text-gray-700" />
+            <ChevronLeft className="h-5 w-5" />
           </button>
           <h1 className="text-lg font-medium text-gray-900">
             {currentFolder.name}
@@ -41,7 +41,7 @@ export const FolderNavigation: React.FC<FolderNavigationProps> = ({
           onClick={() => setIsFolderPanelOpen(!isFolderPanelOpen)}
           className="p-1.5 rounded-full transition-colors hover:bg-gray-100"
         >
-          <MenuRounded className="w-5 h-5 text-gray-700" />
+          <Home className="h-5 w-5" />
         </button>
       </div>
 
@@ -69,7 +69,7 @@ export const FolderNavigation: React.FC<FolderNavigationProps> = ({
                     setIsFolderPanelOpen(false);
                   }}
                 >
-                  <FolderRounded className="w-5 h-5 mr-2" />
+                  <Home className="w-5 h-5 mr-2" />
                   <span className="flex-1 truncate">{folder.name}</span>
                 </button>
               ))}

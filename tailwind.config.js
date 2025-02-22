@@ -15,22 +15,49 @@ export default {
     },
     extend: {
       colors: {
-        primary: {
+        // Custom brand colors
+        brand: {
           dark: '#0c3547',    // Very dark blue
           DEFAULT: '#10656d', // Very dark cyan
           light: '#598f91',   // Mostly desaturated dark cyan
         },
-        secondary: {
+        accent: {
           dark: '#93b071',    // Mostly desaturated dark green
-          DEFAULT: '#ede2cc', // Light grayish orange
+          DEFAULT: '#dd6670', // Soft red
           light: '#edae93',   // Very soft orange
         },
-        accent: '#dd6670',    // Soft red
+        highlight: '#ede2cc', // Light grayish orange
+
+        // shadcn/ui theme colors
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
