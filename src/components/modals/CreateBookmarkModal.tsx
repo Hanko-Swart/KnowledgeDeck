@@ -233,7 +233,7 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
                   <button
                     type="button"
                     onClick={handleGenerateDescription}
-                    className="text-sm text-destructive hover:text-destructive/80 transition-colors disabled:opacity-50"
+                    className="text-sm text-primary hover:text-primary/80 transition-colors disabled:opacity-50"
                     disabled={isGeneratingDescription || isAILoading}
                   >
                     {isGeneratingDescription ? 'Generating...' : 'Generate AI Description'}
@@ -280,13 +280,13 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
                   {tags.map(tag => (
                     <span
                       key={tag}
-                      className="inline-flex items-center px-2 py-1 rounded-md bg-destructive/10 text-destructive text-sm"
+                      className="inline-flex items-center px-2 py-1 rounded-md bg-primary/10 text-primary text-sm"
                     >
                       {tag}
                       <button
                         type="button"
                         onClick={() => removeTag(tag)}
-                        className="ml-1 hover:text-destructive/80"
+                        className="ml-1 hover:text-primary/80"
                       >
                         ×
                       </button>
@@ -338,7 +338,7 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-lg transition-colors"
+                className="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg transition-colors"
               >
                 Save Bookmark
               </button>
