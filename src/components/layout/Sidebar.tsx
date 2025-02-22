@@ -12,6 +12,7 @@ import { getNotes } from '@/storage/noteStorage';
 import { BottomActionBar } from '@components/layout/BottomActionBar';
 import { AISettings } from '@components/settings/AISettings';
 import { getAllBookmarks } from '@/storage/bookmarkStorage';
+import { FolderOutlined, NoteAddOutlined, BookmarkAddOutlined, AccountTreeOutlined } from '@mui/icons-material';
 
 export const Sidebar: React.FC = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
@@ -193,21 +194,121 @@ export const Sidebar: React.FC = () => {
     setMockFolders(prev => [...prev, newFolder]);
   };
 
+  const handleDeleteFolder = async (folderId: string) => {
+    try {
+      const result = await chrome.storage.local.get(['folders', 'cards']);
+      const folders = result.folders || [];
+      const cards = result.cards || [];
+      
+      // Get all descendant folder IDs (including the folder to delete)
+      const folderIdsToDelete = new Set<string>();
+      
+      const collectFolderIds = (parentId: string) => {
+        folderIdsToDelete.add(parentId);
+        folders
+          .filter((f: Folder) => f.parentId === parentId)
+          .forEach((f: Folder) => collectFolderIds(f.id));
+      };
+      
+      collectFolderIds(folderId);
+      
+      // Remove all folders in the set
+      const updatedFolders = folders.filter((f: Folder) => !folderIdsToDelete.has(f.id));
+      
+      // Remove all cards in the deleted folders
+      const updatedCards = cards.filter((c: CardData) => c.folderId && !folderIdsToDelete.has(c.folderId));
+      
+      // Update storage
+      await chrome.storage.local.set({
+        folders: updatedFolders,
+        cards: updatedCards
+      });
+      
+      // Update state
+      setMockFolders(updatedFolders);
+      setNotes(updatedCards);
+      
+      // If we deleted the current folder or any of its ancestors, go back to home
+      if (currentFolder && folderIdsToDelete.has(currentFolder.id)) {
+        setCurrentFolderId(null);
+      }
+    } catch (error) {
+      console.error('Error deleting folder:', error);
+    }
+  };
+
+  const handleDeleteCard = async (cardId: string) => {
+    try {
+      await chrome.storage.local.get(['cards'], (result) => {
+        const cards: CardData[] = result.cards || [];
+        
+        // Remove the card
+        const updatedCards = cards.filter((c: CardData) => c.id !== cardId);
+        
+        // Update storage
+        chrome.storage.local.set({ cards: updatedCards });
+        
+        // Update state
+        setNotes(updatedCards);
+      });
+    } catch (error) {
+      console.error('Error deleting card:', error);
+    }
+  };
+
+  const handleFolderSelect = (folderId: string) => {
+    const selectedFolder = mockFolders.find(f => f.id === folderId);
+    if (selectedFolder) {
+      setCurrentFolderId(selectedFolder.id);
+    }
+  };
+
+  const handleEditFolder = (folderId: string) => {
+    // TODO: Implement folder editing
+    console.log('Edit folder:', folderId);
+  };
+
   return (
     <div className="flex flex-col h-screen bg-gray-50">
+      {/* Main Header */}
+      <div className="flex items-center justify-between px-4 h-14 bg-white border-b border-gray-200">
+        <h1 className="text-xl font-semibold text-primary-dark">KnowledgeDeck</h1>
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+          </svg>
+        </button>
+      </div>
+
       {/* Search and Navigation */}
-      <div className="flex-none p-4 border-b border-gray-200">
-        <SearchBar onSearch={handleSearch} />
+      <div className="flex-none bg-white">
+        <div className="p-4 border-b border-gray-200">
+          <SearchBar onSearch={handleSearch} />
+        </div>
         {currentFolder ? (
           <FolderNavigation
             currentFolder={currentFolder}
             folders={mockFolders}
             onBack={() => setCurrentFolderId(null)}
-            onFolderSelect={setCurrentFolderId}
+            onFolderSelect={handleFolderSelect}
           />
         ) : (
-          <div className="flex items-center justify-between mt-4">
-            <h2 className="text-lg font-medium text-primary-dark">My Folders</h2>
+          <div className="flex items-center justify-between h-14 px-4 bg-white border-b border-gray-200">
+            <h2 className="text-lg font-medium text-gray-900">My Folders</h2>
             <div className="flex items-center gap-2">
               <button
                 className={`p-1.5 rounded transition-colors ${
@@ -241,26 +342,80 @@ export const Sidebar: React.FC = () => {
       {/* Scrollable Content Area */}
       <div className="flex-1 overflow-y-auto">
         <div className="p-4">
-          {currentFolder ? (
-            <CardGrid
-              cards={currentItems}
-              onCardClick={handleCardClick}
-              onCardEdit={handleCardEdit}
-              viewMode={viewMode}
-              folderColor={currentFolder.color}
-            />
+          {/* Folder grid or card grid based on current view */}
+          {!currentFolder ? (
+            mockFolders.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {mockFolders.map((folder) => (
+                  <FolderCard
+                    key={folder.id}
+                    folder={folder}
+                    items={notes.filter(c => c.folderId === folder.id)}
+                    onOpen={handleFolderSelect}
+                    onClick={handleFolderSelect}
+                    onEdit={handleEditFolder}
+                    onColorChange={handleColorChange}
+                    onDelete={handleDeleteFolder}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-64 text-gray-400">
+                <FolderOutlined className="w-16 h-16 mb-4" />
+                <p className="text-sm text-center">
+                  No folders yet. Create your first folder to get started!
+                  <br />
+                  <button
+                    onClick={() => handleCreateFolder(null)}
+                    className="mt-2 text-primary-dark hover:text-primary transition-colors"
+                  >
+                    Create Folder
+                  </button>
+                </p>
+              </div>
+            )
           ) : (
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-              {rootFolders.map(folder => (
-                <FolderCard
-                  key={folder.id}
-                  folder={folder}
-                  items={getFolderItems(folder.id)}
-                  onOpen={setCurrentFolderId}
-                  onColorChange={handleColorChange}
-                />
-              ))}
-            </div>
+            currentItems.length > 0 ? (
+              <CardGrid
+                cards={currentItems}
+                onCardClick={handleCardClick}
+                onCardEdit={handleCardEdit}
+                onCardDelete={handleDeleteCard}
+                viewMode={viewMode}
+                folderColor={currentFolder.color}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center h-64 text-gray-400">
+                <NoteAddOutlined className="w-16 h-16 mb-4" />
+                <p className="text-sm text-center">
+                  This folder is empty. Add some content to get started!
+                  <br />
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={() => handleAddNote(currentFolder.id)}
+                      className="text-primary-dark hover:text-primary transition-colors flex items-center gap-1"
+                    >
+                      <NoteAddOutlined className="w-4 h-4" />
+                      Add Note
+                    </button>
+                    <button
+                      onClick={() => handleAddBookmark(currentFolder.id)}
+                      className="text-primary-dark hover:text-primary transition-colors flex items-center gap-1"
+                    >
+                      <BookmarkAddOutlined className="w-4 h-4" />
+                      Add Bookmark
+                    </button>
+                    <button
+                      onClick={() => handleAddFlowDiagram(currentFolder.id)}
+                      className="text-primary-dark hover:text-primary transition-colors flex items-center gap-1"
+                    >
+                      <AccountTreeOutlined className="w-4 h-4" />
+                      Add Flow
+                    </button>
+                  </div>
+                </p>
+              </div>
+            )
           )}
         </div>
       </div>

@@ -17,19 +17,29 @@ interface CardProps {
   data: CardData;
   onClick?: (id: string) => void;
   onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
   className?: string;
+  folderColor?: string;
 }
 
-export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, className = '' }) => {
+export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, onDelete, className = '', folderColor }) => {
   const handleClick = () => onClick?.(data.id);
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
     onEdit?.(data.id);
   };
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (window.confirm('Are you sure you want to delete this item?')) {
+      onDelete?.(data.id);
+    }
+  };
 
   return (
     <div
-      className={`group relative bg-white rounded-lg shadow-sm hover:shadow-md hover:translate-y-[-1px] transition-all duration-300 p-4 cursor-pointer border border-gray-200 ${className}`}
+      className={`group relative bg-white rounded-lg shadow-sm hover:shadow-md hover:translate-y-[-1px] transition-all duration-300 p-4 cursor-pointer border border-gray-200 ${
+        folderColor ? `border-l-4 border-l-${folderColor}-500` : ''
+      } ${className}`}
       onClick={handleClick}
     >
       {/* Card Header */}
@@ -67,24 +77,44 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, className = '
             </span>
           </div>
         </div>
-        <button
-          onClick={handleEdit}
-          className="p-1.5 rounded-md transition-colors -mr-1 bg-gray-100 hover:bg-gray-200"
-        >
-          <svg
-            className="w-4 h-4 text-gray-700"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+        <div className="flex items-center gap-1">
+          <button
+            onClick={handleEdit}
+            className="p-1.5 rounded-md transition-colors bg-gray-100 hover:bg-gray-200"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-            />
-          </svg>
-        </button>
+            <svg
+              className="w-4 h-4 text-gray-700"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+              />
+            </svg>
+          </button>
+          <button
+            onClick={handleDelete}
+            className="p-1.5 rounded-md transition-colors bg-gray-100 hover:bg-red-100"
+          >
+            <svg
+              className="w-4 h-4 text-gray-700 hover:text-red-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Screenshot Preview (for bookmarks) */}
