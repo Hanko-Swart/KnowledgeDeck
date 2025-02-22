@@ -75,17 +75,17 @@ export const AISettings: React.FC = () => {
   return (
     <form onSubmit={handleSubmit} className="space-y-6 p-6">
       <div>
-        <h2 className="text-lg font-medium text-primary-dark mb-4">AI Service Configuration</h2>
+        <h2 className="text-lg font-medium text-foreground mb-4">AI Service Configuration</h2>
         
         {/* Provider Selection */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-foreground mb-1">
             AI Provider
           </label>
           <select
             value={config.provider}
             onChange={(e) => handleProviderChange(e.target.value as AIProvider)}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="none">No AI (Basic Features Only)</option>
             <option value="huggingface">Hugging Face (Recommended)</option>
@@ -95,23 +95,23 @@ export const AISettings: React.FC = () => {
         {/* API Key Input */}
         {config.provider !== 'none' && (
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               API Key
             </label>
             <input
               type="password"
               value={config.apiKey || ''}
               onChange={(e) => handleApiKeyChange(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               placeholder="Enter your API key"
             />
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               Get your free API key from{' '}
               <a
                 href="https://huggingface.co/settings/tokens"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary hover:text-primary-dark"
+                className="text-primary hover:text-primary/80"
               >
                 Hugging Face
               </a>
@@ -124,7 +124,7 @@ export const AISettings: React.FC = () => {
           <button
             type="button"
             onClick={testConnection}
-            className="px-4 py-2 text-sm bg-secondary text-primary-dark hover:bg-secondary-dark rounded-lg transition-colors"
+            className="px-4 py-2 text-sm bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-lg transition-colors"
           >
             Test Connection
           </button>
@@ -132,12 +132,12 @@ export const AISettings: React.FC = () => {
 
         {/* Status Messages */}
         {error && (
-          <div className="mt-4 p-3 bg-red-50 text-red-700 rounded-lg">
+          <div className="mt-4 p-3 bg-destructive/10 text-destructive rounded-lg">
             {error}
           </div>
         )}
         {testResult && (
-          <div className="mt-4 p-3 bg-green-50 text-green-700 rounded-lg">
+          <div className="mt-4 p-3 bg-primary/10 text-primary rounded-lg">
             {testResult}
           </div>
         )}
@@ -147,7 +147,7 @@ export const AISettings: React.FC = () => {
           <button
             type="submit"
             disabled={isSaving}
-            className="px-4 py-2 bg-primary text-white hover:bg-primary-dark rounded-lg transition-colors disabled:opacity-50"
+            className="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg transition-colors disabled:opacity-50"
           >
             {isSaving ? 'Saving...' : 'Save Settings'}
           </button>
