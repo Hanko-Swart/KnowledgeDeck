@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
-import { Folder } from '@/types/folder';
-import { CardData } from '@/components/cards/Card';
+import type { Folder } from '@/types/folder';
+import type { CardData } from '@components/cards/Card';
+import { 
+  FolderRounded,
+  EditRounded,
+  DeleteRounded
+} from '@mui/icons-material';
 
 interface FolderCardProps {
   folder: Folder;
@@ -52,19 +57,7 @@ export const FolderCard: React.FC<FolderCardProps> = ({
       <div className="flex items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-2">
           <span className="p-1.5 rounded-lg bg-gray-100">
-            <svg
-              className="w-5 h-5 text-gray-700"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-              />
-            </svg>
+            <FolderRounded className="w-5 h-5 text-gray-700" />
           </span>
           <div>
             <h3 className="text-base font-medium leading-tight text-gray-900">
@@ -80,37 +73,13 @@ export const FolderCard: React.FC<FolderCardProps> = ({
             onClick={handleEdit}
             className="p-1.5 rounded-md transition-colors bg-gray-100 hover:bg-gray-200"
           >
-            <svg
-              className="w-4 h-4 text-gray-700"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-              />
-            </svg>
+            <EditRounded className="w-4 h-4 text-gray-700" />
           </button>
           <button
             onClick={handleDelete}
             className="p-1.5 rounded-md transition-colors bg-gray-100 hover:bg-red-100"
           >
-            <svg
-              className="w-4 h-4 text-gray-700 hover:text-red-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-              />
-            </svg>
+            <DeleteRounded className="w-4 h-4 text-gray-700 hover:text-red-600" />
           </button>
         </div>
       </div>
