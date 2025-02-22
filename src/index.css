@@ -2,179 +2,60 @@
 @tailwind components;
 @tailwind utilities;
 
+
 @layer base {
   :root {
-    /* Base colors */
     --background: 0 0% 100%;
-    --foreground: 200 33% 16%; /* #0c3547 - brand-dark */
-
-    /* Brand colors */
-    --primary: 187 73% 24%;    /* #10656d - brand-default */
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 39 53% 86%;   /* #ede2cc - highlight */
-    --secondary-foreground: 200 33% 16%;
-
-    --accent: 355 57% 66%;     /* #dd6670 - accent-default */
-    --accent-foreground: 0 0% 100%;
-
-    /* UI colors */
+    --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
-    --card-foreground: 200 33% 16%;
-
+    --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 200 33% 16%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 346.8 77.2% 49.8%;
+    --primary-foreground: 355.7 100% 97.3%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    /* UI elements */
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 187 73% 24%;       /* Same as primary */
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 346.8 77.2% 49.8%;
     --radius: 0.5rem;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
   }
 
   .dark {
-    --background: 200 33% 16%; /* #0c3547 - brand-dark */
-    --foreground: 0 0% 100%;
-
-    /* Brand colors in dark mode */
-    --primary: 187 73% 24%;    /* #10656d - brand-default */
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 39 53% 86%;   /* #ede2cc - highlight */
-    --secondary-foreground: 200 33% 16%;
-
-    --accent: 355 57% 66%;     /* #dd6670 - accent-default */
-    --accent-foreground: 0 0% 100%;
-
-    /* UI colors in dark mode */
-    --card: 200 33% 16%;
-    --card-foreground: 0 0% 100%;
-
-    --popover: 200 33% 16%;
-    --popover-foreground: 0 0% 100%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
+    --background: 20 14.3% 4.1%;
+    --foreground: 0 0% 95%;
+    --card: 24 9.8% 10%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 9%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 346.8 77.2% 49.8%;
+    --primary-foreground: 355.7 100% 97.3%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 12 6.5% 15.1%;
+    --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    /* UI elements in dark mode */
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 187 73% 24%;       /* Same as primary */
-  }
-
-  html {
-    font-family: "Inter var", system-ui, sans-serif;
-  }
-  
-  body {
-    @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    --destructive-foreground: 0 85.7% 97.3%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 346.8 77.2% 49.8%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
   }
 }
-
-@layer components {
-  .card {
-    @apply bg-card text-card-foreground rounded-lg shadow-sm p-4 transition-all duration-200 border border-border;
-  }
-
-  .card:hover {
-    @apply shadow-md transform -translate-y-1;
-  }
-
-  .btn {
-    @apply px-4 py-2 rounded-md font-medium transition-colors duration-200;
-  }
-
-  .btn-primary {
-    @apply bg-primary text-primary-foreground hover:bg-primary-dark;
-  }
-
-  .btn-secondary {
-    @apply bg-secondary hover:bg-secondary-dark text-primary-dark;
-  }
-
-  .input {
-    @apply px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary;
-  }
-
-  /* TipTap Editor Styles */
-  .ProseMirror {
-    @apply text-foreground min-h-[200px];
-  }
-
-  .ProseMirror p {
-    @apply mb-2;
-  }
-
-  .ProseMirror h1 {
-    @apply text-2xl font-bold mb-4;
-  }
-
-  .ProseMirror h2 {
-    @apply text-xl font-bold mb-3;
-  }
-
-  .ProseMirror ul {
-    @apply list-disc pl-6 mb-4;
-  }
-
-  .ProseMirror ol {
-    @apply list-decimal pl-6 mb-4;
-  }
-
-  .ProseMirror blockquote {
-    @apply border-l-4 border-muted pl-4 italic my-4;
-  }
-
-  .ProseMirror .task-list {
-    @apply list-none pl-0;
-  }
-
-  .ProseMirror .task-list li {
-    @apply flex items-start gap-2;
-  }
-
-  .ProseMirror .task-list li > label {
-    @apply flex items-center gap-2 cursor-pointer;
-  }
-
-  .ProseMirror .task-list li > label > input[type="checkbox"] {
-    @apply rounded border-input text-primary focus:ring-ring;
-  }
-
-  .ProseMirror mark {
-    @apply bg-secondary/50 px-1 rounded;
-  }
-
-  .ProseMirror p.is-editor-empty:first-child::before {
-    @apply text-muted-foreground float-left h-0 pointer-events-none;
-    content: attr(data-placeholder);
-  }
-
-  /* Custom component styles */
-  .knowledge-deck-card {
-    @apply bg-card text-card-foreground rounded-lg shadow-sm p-4 transition-all duration-200 border;
-  }
-
-  .knowledge-deck-card:hover {
-    @apply shadow-md -translate-y-1;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-} 

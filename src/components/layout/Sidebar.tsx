@@ -315,23 +315,23 @@ export const Sidebar: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-screen bg-background">
       {/* Main Header */}
-      <div className="flex items-center justify-between px-4 h-14 bg-white border-b border-gray-200">
-        <h1 className="text-xl font-semibold text-primary-dark">KnowledgeDeck</h1>
+      <div className="flex items-center justify-between px-4 h-14 bg-card border-b border-border">
+        <h1 className="text-xl font-semibold text-foreground">KnowledgeDeck</h1>
         <Button
           variant="ghost"
           size="sm"
           onClick={() => setIsSettingsOpen(true)}
-          className="text-gray-600"
+          className="text-muted-foreground hover:text-foreground"
         >
           <Settings className="h-5 w-5" />
         </Button>
       </div>
 
       {/* Search and Navigation */}
-      <div className="flex-none bg-white">
-        <div className="p-4 border-b border-gray-200">
+      <div className="flex-none bg-card">
+        <div className="p-4 border-b border-border">
           <SearchBar onSearch={handleSearch} />
         </div>
         {currentFolder ? (
@@ -342,8 +342,8 @@ export const Sidebar: React.FC = () => {
             onFolderSelect={handleFolderSelect}
           />
         ) : (
-          <div className="flex items-center justify-between h-14 px-4 bg-white border-b border-gray-200">
-            <h2 className="text-lg font-medium text-gray-900">My Folders</h2>
+          <div className="flex items-center justify-between h-14 px-4 bg-card border-b border-border">
+            <h2 className="text-lg font-medium text-foreground">My Folders</h2>
             <div className="flex items-center gap-2">
               <Button
                 variant={viewMode === 'list' ? 'secondary' : 'ghost'}
@@ -385,14 +385,14 @@ export const Sidebar: React.FC = () => {
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-64 text-gray-400">
+              <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
                 <FolderIcon className="w-16 h-16 mb-4" />
                 <p className="text-sm text-center">
                   No folders yet. Create your first folder to get started!
                   <br />
                   <button
                     onClick={() => handleCreateFolder(null)}
-                    className="mt-2 text-primary-dark hover:text-primary transition-colors"
+                    className="mt-2 text-primary hover:text-primary/80 transition-colors"
                   >
                     Create Folder
                   </button>
@@ -410,7 +410,7 @@ export const Sidebar: React.FC = () => {
                 folderColor={currentFolder.color}
               />
             ) : (
-              <div className="flex flex-col items-center justify-center h-64 text-gray-400">
+              <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
                 <FileText className="w-16 h-16 mb-4" />
                 <p className="text-sm text-center">
                   This folder is empty. Add some content to get started!
@@ -483,31 +483,31 @@ export const Sidebar: React.FC = () => {
           <div className="space-y-6">
             {/* Theme Toggle */}
             <div>
-              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">Theme</h3>
+              <h3 className="text-sm font-medium text-foreground mb-3">Theme</h3>
               <ThemeToggle />
             </div>
 
             {/* Quick Actions */}
             <div>
-              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">Quick Actions</h3>
+              <h3 className="text-sm font-medium text-foreground mb-3">Quick Actions</h3>
               <div className="grid grid-cols-2 gap-3">
                 <Button
                   variant="outline"
-                  className="flex items-center gap-2 text-primary-dark hover:bg-secondary/10"
+                  className="flex items-center gap-2 text-foreground hover:bg-accent hover:text-accent-foreground"
                 >
                   <Upload className="h-5 w-5" />
                   Import Bookmarks
                 </Button>
                 <Button
                   variant="outline"
-                  className="flex items-center gap-2 text-primary-dark hover:bg-secondary/10"
+                  className="flex items-center gap-2 text-foreground hover:bg-accent hover:text-accent-foreground"
                 >
                   <Download className="h-5 w-5" />
                   Export Data
                 </Button>
                 <Button
                   variant="outline"
-                  className="flex items-center gap-2 text-primary-dark hover:bg-secondary/10"
+                  className="flex items-center gap-2 text-foreground hover:bg-accent hover:text-accent-foreground"
                 >
                   <RefreshCw className="h-5 w-5" />
                   Sync Status
@@ -517,7 +517,7 @@ export const Sidebar: React.FC = () => {
 
             {/* AI Settings */}
             <div>
-              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">AI Settings</h3>
+              <h3 className="text-sm font-medium text-foreground mb-3">AI Settings</h3>
               <AISettings />
             </div>
           </div>

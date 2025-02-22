@@ -20,13 +20,13 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search..."
-        className="w-full px-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary-dark focus:border-primary-dark"
+        className="w-full px-4 py-2 text-sm bg-muted text-foreground border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-input placeholder:text-muted-foreground"
       />
       <button
         type="submit"
-        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary-dark"
+        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
       >
-        <Search className="h-5 w-5 text-gray-400" />
+        <Search className="h-5 w-5" />
       </button>
     </form>
   );

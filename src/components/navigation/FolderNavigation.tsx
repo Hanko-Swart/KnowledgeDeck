@@ -24,22 +24,22 @@ export const FolderNavigation: React.FC<FolderNavigationProps> = ({
   return (
     <div className="relative">
       {/* Navigation Bar */}
-      <div className="flex items-center justify-between h-14 px-4 border-b border-gray-200 bg-white">
+      <div className="flex items-center justify-between h-14 px-4 border-b border-border bg-card">
         <div className="flex items-center gap-3">
           <button
             onClick={onBack}
-            className="p-1.5 rounded-full transition-colors hover:bg-gray-100"
+            className="p-1.5 rounded-full transition-colors hover:bg-accent"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
-          <h1 className="text-lg font-medium text-gray-900">
+          <h1 className="text-lg font-medium text-foreground">
             {currentFolder.name}
           </h1>
         </div>
 
         <button
           onClick={() => setIsFolderPanelOpen(!isFolderPanelOpen)}
-          className="p-1.5 rounded-full transition-colors hover:bg-gray-100"
+          className="p-1.5 rounded-full transition-colors hover:bg-accent"
         >
           <Home className="h-5 w-5" />
         </button>
@@ -50,19 +50,19 @@ export const FolderNavigation: React.FC<FolderNavigationProps> = ({
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/20 z-10"
+            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-10"
             onClick={() => setIsFolderPanelOpen(false)}
           />
           {/* Panel */}
-          <div className="absolute right-0 top-full mt-1 w-64 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-20">
+          <div className="absolute right-0 top-full mt-1 w-64 bg-card rounded-lg shadow-lg border border-border overflow-hidden z-20">
             <div className="p-2 space-y-1">
               {folders.map(folder => (
                 <button
                   key={folder.id}
                   className={`flex items-center w-full px-3 py-2 rounded-lg transition-colors ${
                     folder.id === currentFolder.id
-                      ? 'bg-gray-100 text-gray-900'
-                      : 'hover:bg-gray-50 text-gray-700'
+                      ? 'bg-accent text-accent-foreground'
+                      : 'hover:bg-accent/50 text-foreground'
                   }`}
                   onClick={() => {
                     onFolderSelect(folder.id);
