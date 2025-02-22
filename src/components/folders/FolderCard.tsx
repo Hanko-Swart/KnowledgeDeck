@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
-import { Folder } from '@/types/folder';
-import { CardData } from '@/components/cards/Card';
+import type { Folder } from '@/types/folder';
+import type { CardData } from '@components/cards/Card';
+import { 
+  FolderRounded,
+  EditRounded,
+  DeleteRounded
+} from '@mui/icons-material';
 
 interface FolderCardProps {
   folder: Folder;
   items: CardData[];
   onOpen: (folderId: string) => void;
+  onClick?: (id: string) => void;
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
   onColorChange?: (folderId: string, color: string) => void;
   className?: string;
 }
@@ -13,7 +21,10 @@ interface FolderCardProps {
 export const FolderCard: React.FC<FolderCardProps> = ({ 
   folder, 
   items, 
-  onOpen, 
+  onOpen,
+  onClick,
+  onEdit,
+  onDelete,
   onColorChange,
   className = '' 
 }) => {
@@ -22,28 +33,31 @@ export const FolderCard: React.FC<FolderCardProps> = ({
   // Get unique tags from all items in the folder
   const tags = Array.from(new Set(items.flatMap(item => item.tags || [])));
 
+  const handleClick = () => {
+    onClick?.(folder.id);
+    onOpen(folder.id);
+  };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEdit?.(folder.id);
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDelete?.(folder.id);
+  };
+
   return (
     <div
       className={`group relative bg-white rounded-lg shadow-sm hover:shadow-md transition-all p-4 cursor-pointer border border-gray-200 ${className}`}
-      onClick={() => onOpen(folder.id)}
+      onClick={handleClick}
     >
       {/* Header */}
       <div className="flex items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-2">
           <span className="p-1.5 rounded-lg bg-gray-100">
-            <svg
-              className="w-5 h-5 text-gray-700"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-              />
-            </svg>
+            <FolderRounded className="w-5 h-5 text-gray-700" />
           </span>
           <div>
             <h3 className="text-base font-medium leading-tight text-gray-900">
@@ -53,6 +67,20 @@ export const FolderCard: React.FC<FolderCardProps> = ({
               {items.length} items
             </span>
           </div>
+        </div>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={handleEdit}
+            className="p-1.5 rounded-md transition-colors bg-gray-100 hover:bg-gray-200"
+          >
+            <EditRounded className="w-4 h-4 text-gray-700" />
+          </button>
+          <button
+            onClick={handleDelete}
+            className="p-1.5 rounded-md transition-colors bg-gray-100 hover:bg-red-100"
+          >
+            <DeleteRounded className="w-4 h-4 text-gray-700 hover:text-red-600" />
+          </button>
         </div>
       </div>
 

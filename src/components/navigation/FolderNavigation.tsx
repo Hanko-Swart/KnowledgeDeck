@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 import type { Folder } from '@/types/folder';
+import { 
+  ChevronLeftRounded,
+  MenuRounded,
+  FolderRounded
+} from '@mui/icons-material';
 
 interface FolderNavigationProps {
   currentFolder: Folder;
@@ -25,19 +30,7 @@ export const FolderNavigation: React.FC<FolderNavigationProps> = ({
             onClick={onBack}
             className="p-1.5 rounded-full transition-colors hover:bg-gray-100"
           >
-            <svg
-              className="w-5 h-5 text-gray-700"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
+            <ChevronLeftRounded className="w-5 h-5 text-gray-700" />
           </button>
           <h1 className="text-lg font-medium text-gray-900">
             {currentFolder.name}
@@ -48,19 +41,7 @@ export const FolderNavigation: React.FC<FolderNavigationProps> = ({
           onClick={() => setIsFolderPanelOpen(!isFolderPanelOpen)}
           className="p-1.5 rounded-full transition-colors hover:bg-gray-100"
         >
-          <svg
-            className="w-5 h-5 text-gray-700"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 6h16M4 12h16m-7 6h7"
-            />
-          </svg>
+          <MenuRounded className="w-5 h-5 text-gray-700" />
         </button>
       </div>
 
@@ -88,19 +69,7 @@ export const FolderNavigation: React.FC<FolderNavigationProps> = ({
                     setIsFolderPanelOpen(false);
                   }}
                 >
-                  <svg
-                    className="w-5 h-5 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-                    />
-                  </svg>
+                  <FolderRounded className="w-5 h-5 mr-2" />
                   <span className="flex-1 truncate">{folder.name}</span>
                 </button>
               ))}

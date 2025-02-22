@@ -11,6 +11,22 @@ import { getFolders, saveFolders } from '@/storage/folderStorage';
 import { getNotes } from '@/storage/noteStorage';
 import { BottomActionBar } from '@components/layout/BottomActionBar';
 import { AISettings } from '@components/settings/AISettings';
+import { getAllBookmarks } from '@/storage/bookmarkStorage';
+import { 
+  FolderOutlined, 
+  NoteAddOutlined, 
+  BookmarkAddOutlined, 
+  AccountTreeOutlined,
+  SettingsRounded,
+  ViewListRounded,
+  GridViewRounded,
+  FileUploadRounded,
+  FileDownloadRounded,
+  SyncRounded,
+  CloseRounded
+} from '@mui/icons-material';
+import { ConfirmationModal } from '@components/modals/ConfirmationModal';
+import { CreateFolderModal } from '@components/modals/CreateFolderModal';
 
 export const Sidebar: React.FC = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
@@ -19,6 +35,13 @@ export const Sidebar: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [mockFolders, setMockFolders] = useState<Folder[]>([]);
   const [notes, setNotes] = useState<CardData[]>([]);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{
+    isOpen: boolean;
+    type: 'folder' | 'card';
+    id: string;
+    name: string;
+  } | null>(null);
+  const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false);
 
   // Convert Note to CardData
   const convertNoteToCard = (note: Note): CardData => ({
@@ -35,25 +58,36 @@ export const Sidebar: React.FC = () => {
   // Load folders and notes from storage on component mount
   useEffect(() => {
     const loadData = async () => {
-      // Load folders
-      const storedFolders = await getFolders();
-      if (storedFolders.length > 0) {
+      try {
+        // Load folders
+        const storedFolders = await getFolders();
         setMockFolders(storedFolders);
-      } else {
-        // Initialize with default folders if none exist
-        const defaultFolders: Folder[] = [
-          { id: '1', name: 'Research', parentId: null, color: '#1a4d63' },
-          { id: '2', name: 'Projects', parentId: null },
-          { id: '3', name: 'Articles', parentId: '1' },
-          { id: '4', name: 'Ideas', parentId: '2' },
-        ];
-        setMockFolders(defaultFolders);
-        await saveFolders(defaultFolders);
-      }
 
-      // Load notes and convert them to CardData
-      const storedNotes = await getNotes();
-      setNotes(storedNotes.map(convertNoteToCard));
+        // Load notes and convert them to CardData
+        const storedNotes = await getNotes();
+        const noteCards = storedNotes.map(convertNoteToCard);
+
+        // Load bookmarks and convert them to CardData
+        const storedBookmarks = await getAllBookmarks();
+        const bookmarkCards = storedBookmarks.map(bookmark => ({
+          id: bookmark.id,
+          type: 'bookmark' as const,
+          title: bookmark.title,
+          description: bookmark.description,
+          url: bookmark.url,
+          tags: bookmark.tags,
+          createdAt: new Date(bookmark.createdAt),
+          updatedAt: new Date(bookmark.updatedAt),
+          folderId: bookmark.folderId,
+          screenshot: bookmark.screenshot,
+        }));
+
+        // Combine notes and bookmarks
+        setNotes([...noteCards, ...bookmarkCards]);
+      } catch (error) {
+        console.error('Failed to load data:', error);
+        // TODO: Show error message to user
+      }
     };
     loadData();
   }, []);
@@ -133,8 +167,20 @@ export const Sidebar: React.FC = () => {
   };
 
   const handleAddBookmark = async (folderId: string) => {
-    // TODO: Implement bookmark creation
-    console.log('Adding bookmark to folder:', folderId);
+    // Refresh bookmarks list after bookmark creation
+    const updatedBookmarks = await getAllBookmarks();
+    const bookmarkCards = updatedBookmarks.map(bookmark => ({
+      id: bookmark.id,
+      type: 'bookmark' as const,
+      title: bookmark.title,
+      description: bookmark.description,
+      url: bookmark.url,
+      tags: bookmark.tags,
+      createdAt: new Date(bookmark.createdAt),
+      updatedAt: new Date(bookmark.updatedAt),
+      folderId: bookmark.folderId,
+    }));
+    setNotes(prev => [...prev.filter(note => note.type !== 'bookmark'), ...bookmarkCards]);
   };
 
   const handleAddNote = async (folderId: string) => {
@@ -148,81 +194,146 @@ export const Sidebar: React.FC = () => {
     console.log('Adding flow diagram to folder:', folderId);
   };
 
-  const handleCreateFolder = (name: string) => {
-    const newFolder: Folder = {
-      id: Date.now().toString(),
-      name,
-      parentId: null,
-    };
-    setMockFolders(prev => [...prev, newFolder]);
+  const handleCreateFolder = (parentId: string | null) => {
+    setCurrentFolderId(parentId);
+    setIsCreateFolderModalOpen(true);
+  };
+
+  const handleFolderCreated = async (folderId: string) => {
+    try {
+      // Refresh folders from storage
+      const updatedFolders = await getFolders();
+      setMockFolders(updatedFolders);
+      
+      // Update UI state
+      setIsCreateFolderModalOpen(false);
+      setCurrentFolderId(folderId);
+    } catch (error) {
+      console.error('Failed to refresh folders:', error);
+      // TODO: Show error message to user
+    }
+  };
+
+  const handleDeleteFolder = async (folderId: string) => {
+    const folder = mockFolders.find(f => f.id === folderId);
+    if (!folder) return;
+
+    setDeleteConfirmation({
+      isOpen: true,
+      type: 'folder',
+      id: folderId,
+      name: folder.name
+    });
+  };
+
+  const handleDeleteCard = async (cardId: string) => {
+    const card = notes.find(n => n.id === cardId);
+    if (!card) return;
+
+    setDeleteConfirmation({
+      isOpen: true,
+      type: 'card',
+      id: cardId,
+      name: card.title
+    });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmation) return;
+
+    const { type, id } = deleteConfirmation;
+
+    try {
+      if (type === 'folder') {
+        // Get all descendant folder IDs (including the folder to delete)
+        const folderIdsToDelete = new Set<string>();
+        
+        const collectFolderIds = (parentId: string) => {
+          folderIdsToDelete.add(parentId);
+          mockFolders
+            .filter(f => f.parentId === parentId)
+            .forEach(f => collectFolderIds(f.id));
+        };
+        
+        collectFolderIds(id);
+        
+        // Remove all folders in the set
+        const updatedFolders = mockFolders.filter(f => !folderIdsToDelete.has(f.id));
+        
+        // Remove all cards in the deleted folders
+        const updatedCards = notes.filter(c => c.folderId && !folderIdsToDelete.has(c.folderId));
+        
+        // Update storage and state
+        await saveFolders(updatedFolders);
+        setMockFolders(updatedFolders);
+        setNotes(updatedCards);
+        
+        // If we deleted the current folder or any of its ancestors, go back to home
+        if (currentFolder && folderIdsToDelete.has(currentFolder.id)) {
+          setCurrentFolderId(null);
+        }
+      } else {
+        // Remove the card from state
+        const updatedCards = notes.filter(c => c.id !== id);
+        setNotes(updatedCards);
+        
+        // Remove from appropriate storage based on type
+        const card = notes.find(n => n.id === id);
+        if (card?.type === 'bookmark') {
+          await chrome.storage.local.remove([`bookmark_${id}`]);
+        } else {
+          await chrome.storage.local.remove([`note_${id}`]);
+        }
+      }
+
+      // Close the confirmation modal
+      setDeleteConfirmation(null);
+    } catch (error) {
+      console.error(`Error deleting ${type}:`, error);
+      // TODO: Show error message to user
+    }
+  };
+
+  const handleFolderSelect = (folderId: string) => {
+    const selectedFolder = mockFolders.find(f => f.id === folderId);
+    if (selectedFolder) {
+      setCurrentFolderId(selectedFolder.id);
+    }
+  };
+
+  const handleEditFolder = (folderId: string) => {
+    // TODO: Implement folder editing
+    console.log('Edit folder:', folderId);
   };
 
   return (
-    <div className="flex flex-col h-screen bg-white">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-gray-900 text-white">
-        <div className="flex items-center gap-2">
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-            />
-          </svg>
-          <span className="text-lg font-semibold">KnowledgeDeck</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
-            title="Settings"
-            onClick={() => setIsSettingsOpen(true)}
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
-          </button>
-        </div>
+    <div className="flex flex-col h-screen bg-gray-50">
+      {/* Main Header */}
+      <div className="flex items-center justify-between px-4 h-14 bg-white border-b border-gray-200">
+        <h1 className="text-xl font-semibold text-primary-dark">KnowledgeDeck</h1>
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
+        >
+          <SettingsRounded className="w-5 h-5" />
+        </button>
       </div>
 
-      {/* Search Bar */}
-      <div className="p-4">
-        <SearchBar onSearch={handleSearch} />
-      </div>
-
-      {currentFolder ? (
-        // Folder View
-        <>
+      {/* Search and Navigation */}
+      <div className="flex-none bg-white">
+        <div className="p-4 border-b border-gray-200">
+          <SearchBar onSearch={handleSearch} />
+        </div>
+        {currentFolder ? (
           <FolderNavigation
             currentFolder={currentFolder}
-            onBack={() => setCurrentFolderId(null)}
-            onFolderSelect={setCurrentFolderId}
             folders={mockFolders}
+            onBack={() => setCurrentFolderId(null)}
+            onFolderSelect={handleFolderSelect}
           />
-
-          {/* View Toggle */}
-          <div className="px-4 py-2 flex items-center justify-end border-b border-gray-200">
+        ) : (
+          <div className="flex items-center justify-between h-14 px-4 bg-white border-b border-gray-200">
+            <h2 className="text-lg font-medium text-gray-900">My Folders</h2>
             <div className="flex items-center gap-2">
               <button
                 className={`p-1.5 rounded transition-colors ${
@@ -232,9 +343,7 @@ export const Sidebar: React.FC = () => {
                 }`}
                 onClick={() => setViewMode('list')}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                </svg>
+                <ViewListRounded className="w-5 h-5" />
               </button>
               <button
                 className={`p-1.5 rounded transition-colors ${
@@ -244,99 +353,187 @@ export const Sidebar: React.FC = () => {
                 }`}
                 onClick={() => setViewMode('grid')}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                </svg>
+                <GridViewRounded className="w-5 h-5" />
               </button>
             </div>
           </div>
+        )}
+      </div>
 
-          {/* Folder Content */}
-          <div className="flex-1 overflow-y-auto p-4">
-            <CardGrid
-              cards={currentItems}
-              viewMode={viewMode}
-              onCardClick={handleCardClick}
-              onCardEdit={handleCardEdit}
-            />
-          </div>
-        </>
-      ) : (
-        // Home View
-        <>
-          {/* Folders Grid */}
-          <div className="flex-1 overflow-y-auto p-4">
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-              {rootFolders.map(folder => (
-                <FolderCard
-                  key={folder.id}
-                  folder={folder}
-                  items={getFolderItems(folder.id)}
-                  onOpen={setCurrentFolderId}
-                  onColorChange={handleColorChange}
-                />
-              ))}
-            </div>
-          </div>
-        </>
-      )}
+      {/* Scrollable Content Area */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-4">
+          {/* Folder grid or card grid based on current view */}
+          {!currentFolder ? (
+            mockFolders.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {mockFolders.map((folder) => (
+                  <FolderCard
+                    key={folder.id}
+                    folder={folder}
+                    items={notes.filter(c => c.folderId === folder.id)}
+                    onOpen={handleFolderSelect}
+                    onClick={handleFolderSelect}
+                    onEdit={handleEditFolder}
+                    onColorChange={handleColorChange}
+                    onDelete={handleDeleteFolder}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-64 text-gray-400">
+                <FolderOutlined className="w-16 h-16 mb-4" />
+                <p className="text-sm text-center">
+                  No folders yet. Create your first folder to get started!
+                  <br />
+                  <button
+                    onClick={() => handleCreateFolder(null)}
+                    className="mt-2 text-primary-dark hover:text-primary transition-colors"
+                  >
+                    Create Folder
+                  </button>
+                </p>
+              </div>
+            )
+          ) : (
+            currentItems.length > 0 ? (
+              <CardGrid
+                cards={currentItems}
+                onCardClick={handleCardClick}
+                onCardEdit={handleCardEdit}
+                onCardDelete={handleDeleteCard}
+                viewMode={viewMode}
+                folderColor={currentFolder.color}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center h-64 text-gray-400">
+                <NoteAddOutlined className="w-16 h-16 mb-4" />
+                <p className="text-sm text-center">
+                  This folder is empty. Add some content to get started!
+                  <br />
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={() => handleAddNote(currentFolder.id)}
+                      className="text-primary-dark hover:text-primary transition-colors flex items-center gap-1"
+                    >
+                      <NoteAddOutlined className="w-4 h-4" />
+                      Add Note
+                    </button>
+                    <button
+                      onClick={() => handleAddBookmark(currentFolder.id)}
+                      className="text-primary-dark hover:text-primary transition-colors flex items-center gap-1"
+                    >
+                      <BookmarkAddOutlined className="w-4 h-4" />
+                      Add Bookmark
+                    </button>
+                    <button
+                      onClick={() => handleAddFlowDiagram(currentFolder.id)}
+                      className="text-primary-dark hover:text-primary transition-colors flex items-center gap-1"
+                    >
+                      <AccountTreeOutlined className="w-4 h-4" />
+                      Add Flow
+                    </button>
+                  </div>
+                </p>
+              </div>
+            )
+          )}
+        </div>
+      </div>
 
       {/* Bottom Action Bar */}
-      <BottomActionBar
-        onAddBookmark={handleAddBookmark}
-        onAddNote={handleAddNote}
-        onAddFlowDiagram={handleAddFlowDiagram}
-        onCreateFolder={handleCreateFolder}
-        currentFolderId={currentFolderId}
-        folders={mockFolders}
-      />
+      <div className="flex-none">
+        <BottomActionBar
+          folders={mockFolders}
+          currentFolderId={currentFolderId}
+          onAddNote={handleAddNote}
+          onAddBookmark={handleAddBookmark}
+          onAddFlowDiagram={handleAddFlowDiagram}
+          onAddFolder={handleCreateFolder}
+        />
+      </div>
 
-      {/* Add New Menu */}
+      {/* Modals */}
       <AddNewMenu
         isOpen={isAddMenuOpen}
         onClose={() => setIsAddMenuOpen(false)}
-        folders={mockFolders}
         onAddBookmark={handleAddBookmark}
         onAddNote={handleAddNote}
         onAddFlowDiagram={handleAddFlowDiagram}
+        folders={mockFolders}
         onCreateFolder={handleCreateFolder}
       />
 
-      {/* Settings Modal */}
       {isSettingsOpen && (
-        <>
+        <div className="fixed inset-0 z-50">
           <div 
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setIsSettingsOpen(false)}
           />
-          <div className="fixed inset-4 sm:inset-auto sm:top-[5%] sm:left-1/2 sm:-translate-x-1/2 sm:w-[600px] sm:max-h-[90vh] bg-white rounded-lg shadow-xl z-50 flex flex-col">
-            <div className="flex items-center justify-between px-4 py-3 border-b">
-              <h2 className="text-lg font-medium text-primary-dark">Settings</h2>
+          <div className="absolute inset-4 sm:inset-auto sm:top-[5%] sm:left-1/2 sm:-translate-x-1/2 sm:w-[600px] sm:max-h-[90vh] bg-white rounded-lg shadow-xl overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h2 className="text-lg font-medium">Settings</h2>
               <button
                 onClick={() => setIsSettingsOpen(false)}
-                className="p-1.5 hover:bg-secondary/10 rounded-lg transition-colors"
+                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <svg
-                  className="w-5 h-5 text-gray-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                <CloseRounded className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto">
-              <AISettings />
+            <div className="p-4 space-y-6 overflow-y-auto max-h-[calc(90vh-8rem)]">
+              {/* Quick Actions */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-900 mb-3">Quick Actions</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <button className="flex items-center justify-center gap-2 p-3 text-sm text-primary-dark hover:bg-secondary/10 rounded-lg transition-colors border border-gray-200">
+                    <FileUploadRounded className="w-5 h-5" />
+                    Import Bookmarks
+                  </button>
+                  <button className="flex items-center justify-center gap-2 p-3 text-sm text-primary-dark hover:bg-secondary/10 rounded-lg transition-colors border border-gray-200">
+                    <FileDownloadRounded className="w-5 h-5" />
+                    Export Data
+                  </button>
+                  <button className="flex items-center justify-center gap-2 p-3 text-sm text-primary-dark hover:bg-secondary/10 rounded-lg transition-colors border border-gray-200">
+                    <SyncRounded className="w-5 h-5" />
+                    Sync Status
+                  </button>
+                </div>
+              </div>
+
+              {/* AI Settings */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-900 mb-3">AI Settings</h3>
+                <AISettings />
+              </div>
             </div>
           </div>
-        </>
+        </div>
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={!!deleteConfirmation}
+        onClose={() => setDeleteConfirmation(null)}
+        onConfirm={confirmDelete}
+        title={`Delete ${deleteConfirmation?.type === 'folder' ? 'Folder' : 'Item'}`}
+        message={deleteConfirmation ? (
+          deleteConfirmation.type === 'folder'
+            ? `Are you sure you want to delete "${deleteConfirmation.name}" and all its contents? This action cannot be undone.`
+            : `Are you sure you want to delete "${deleteConfirmation.name}"? This action cannot be undone.`
+        ) : ''}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        type="danger"
+      />
+
+      {/* Create Folder Modal */}
+      <CreateFolderModal
+        isOpen={isCreateFolderModalOpen}
+        onClose={() => setIsCreateFolderModalOpen(false)}
+        folders={mockFolders}
+        currentFolderId={currentFolderId}
+        onFolderCreated={handleFolderCreated}
+      />
     </div>
   );
 }; 

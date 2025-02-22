@@ -5,6 +5,7 @@ interface CardGridProps {
   cards: CardData[];
   onCardClick?: (id: string) => void;
   onCardEdit?: (id: string) => void;
+  onCardDelete?: (id: string) => void;
   viewMode?: 'list' | 'grid';
   folderColor?: string;
 }
@@ -13,6 +14,7 @@ export const CardGrid: React.FC<CardGridProps> = ({
   cards,
   onCardClick,
   onCardEdit,
+  onCardDelete,
   viewMode = 'grid',
   folderColor
 }) => {
@@ -51,6 +53,7 @@ export const CardGrid: React.FC<CardGridProps> = ({
           data={card}
           onClick={onCardClick}
           onEdit={onCardEdit}
+          onDelete={onCardDelete}
           className={viewMode === 'list' ? 'flex-row' : ''}
           folderColor={folderColor}
         />

@@ -15,10 +15,10 @@ export function useAI(): UseAIResult {
   const [error, setError] = useState<string | null>(null);
 
   const handleAIResponse = <T>(response: AIResponse<T>): T => {
-    if (!response.success) {
+    if (!response.success || !response.data) {
       throw new Error(response.error || 'AI operation failed');
     }
-    return response.data!;
+    return response.data;
   };
 
   const generateTags = useCallback(async (content: string): Promise<string[]> => {
@@ -28,7 +28,7 @@ export function useAI(): UseAIResult {
       const service = await getAIService();
       const response = await service.generateTags(content);
       const result = handleAIResponse(response);
-      return result.tags;
+      return result.tags || [];
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to generate tags';
       setError(errorMessage);
@@ -45,11 +45,21 @@ export function useAI(): UseAIResult {
       const service = await getAIService();
       const response = await service.generateSummary(content);
       const result = handleAIResponse(response);
-      return result.summary;
+      
+      if (!result.summary) {
+        throw new Error('AI service returned an empty summary');
+      }
+
+      const summary = result.summary.trim();
+      if (summary === '') {
+        throw new Error('AI service returned an empty summary');
+      }
+
+      return summary;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to generate summary';
       setError(errorMessage);
-      return '';
+      throw new Error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -62,7 +72,7 @@ export function useAI(): UseAIResult {
       const service = await getAIService();
       const response = await service.findSimilarContent(content, items);
       const result = handleAIResponse(response);
-      return result.similarItems;
+      return result.similarItems || [];
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to find similar content';
       setError(errorMessage);

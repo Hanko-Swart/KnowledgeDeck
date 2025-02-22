@@ -1,7 +1,8 @@
 import '@testing-library/jest-dom';
-import { vi } from 'vitest';
+import { expect, vi } from 'vitest';
 
-interface Chrome {
+// Define a minimal subset of Chrome API types that we need for testing
+interface ChromeAPI {
   runtime: {
     sendMessage: typeof vi.fn;
     onMessage: {
@@ -25,14 +26,8 @@ interface Chrome {
   };
 }
 
-declare global {
-  interface Window {
-    chrome: Chrome;
-  }
-}
-
-// Mock Chrome Extension API
-window.chrome = {
+// Create mock implementation
+const mockChrome: ChromeAPI = {
   runtime: {
     sendMessage: vi.fn(),
     onMessage: {
@@ -54,4 +49,17 @@ window.chrome = {
     query: vi.fn(),
     sendMessage: vi.fn(),
   },
-} as Chrome; 
+};
+
+// Extend window interface
+declare global {
+  interface Window {
+    chrome: ChromeAPI;
+  }
+}
+
+// Set up mock
+window.chrome = mockChrome;
+
+// Export for use in tests
+export { mockChrome }; 

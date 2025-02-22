@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import type { Folder } from '@/types/folder';
 import { saveBookmark } from '@/storage/bookmarkStorage';
 import { RichTextEditor } from '@components/editor/RichTextEditor';
+import { useAI } from '@/hooks/useAI';
+import { extractPageContent } from '@/utils/content';
 
 interface CreateBookmarkModalProps {
   isOpen: boolean;
@@ -25,12 +27,23 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
   const [title, setTitle] = useState(initialTitle);
   const [url, setUrl] = useState(initialUrl);
   const [description, setDescription] = useState('');
+  const [metaDescription, setMetaDescription] = useState('');
   const [selectedFolderId, setSelectedFolderId] = useState(currentFolderId || '');
   const [tags, setTags] = useState<string[]>([]);
-  const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
-  const [isGeneratingTags, setIsGeneratingTags] = useState(false);
-  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
+  const [tagInput, setTagInput] = useState('');
+  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { generateSummary, isLoading: isAILoading } = useAI();
+
+  useEffect(() => {
+    if (isOpen) {
+      resetForm();
+      if (initialUrl) {
+        setUrl(initialUrl);
+        loadPageContent(initialUrl);
+      }
+    }
+  }, [isOpen, initialUrl]);
 
   const resetForm = () => {
     setTitle(initialTitle);
@@ -38,64 +51,74 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
     setDescription('');
     setSelectedFolderId(currentFolderId || '');
     setTags([]);
-    setSuggestedTags([]);
+    setTagInput('');
+    setMetaDescription('');
+    setError(null);
   };
 
-  useEffect(() => {
-    if (!isOpen) {
-      resetForm();
-    } else {
-      setSelectedFolderId(currentFolderId || '');
-      // Auto-generate summary and tags when modal opens with a URL
-      if (url) {
-        generateSummary();
-        generateAITags();
+  const loadPageContent = async (urlToLoad: string) => {
+    if (!urlToLoad) return;
+
+    try {
+      const content = await extractPageContent(urlToLoad);
+      setTitle(content.title || initialTitle);
+      setMetaDescription(content.metaDescription || '');
+      setDescription(content.metaDescription || '');
+    } catch (err) {
+      console.error('Failed to extract page content:', err);
+      setError('Failed to extract page content');
+    }
+  };
+
+  const handleUrlChange = async (newUrl: string) => {
+    setUrl(newUrl);
+    if (newUrl && isValidUrl(newUrl)) {
+      await loadPageContent(newUrl);
+    }
+  };
+
+  const isValidUrl = (urlString: string): boolean => {
+    try {
+      new URL(urlString);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const handleGenerateDescription = async () => {
+    setIsGeneratingDescription(true);
+    setError(null);
+    
+    try {
+      const content = await extractPageContent(url);
+      const summary = await generateSummary(content.content);
+      if (summary && summary.trim() !== '') {
+        setDescription(summary);
+      } else {
+        setError('Failed to generate description - empty response from AI service');
       }
-    }
-  }, [isOpen, currentFolderId, url]);
-
-  const generateSummary = async () => {
-    if (!url || isGeneratingSummary) return;
-    setIsGeneratingSummary(true);
-    try {
-      // TODO: Implement actual AI summary generation
-      // For now, using a placeholder
-      setTimeout(() => {
-        setDescription('AI-generated summary of the webpage content...');
-        setIsGeneratingSummary(false);
-      }, 1000);
-    } catch (error) {
-      console.error('Failed to generate summary:', error);
-      setIsGeneratingSummary(false);
-    }
-  };
-
-  const generateAITags = async () => {
-    if (!url || isGeneratingTags) return;
-    setIsGeneratingTags(true);
-    try {
-      // TODO: Implement actual AI tag generation
-      // For now, using placeholder tags
-      setTimeout(() => {
-        setSuggestedTags(['research', 'article', 'web']);
-        setIsGeneratingTags(false);
-      }, 1000);
-    } catch (error) {
-      console.error('Failed to generate tags:', error);
-      setIsGeneratingTags(false);
+    } catch (err) {
+      console.error('Failed to generate description:', err);
+      setError(err instanceof Error ? err.message : 'Failed to generate description');
+    } finally {
+      setIsGeneratingDescription(false);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedFolderId || !title.trim() || !url.trim()) return;
+    if (!selectedFolderId || !title.trim() || !url.trim()) {
+      setError('Please fill in all required fields');
+      return;
+    }
 
-    setIsCreating(true);
     try {
+      setError(null);
       await saveBookmark({
         title: title.trim(),
         url: url.trim(),
-        description,
+        description: description || '',
         folderId: selectedFolderId,
         tags,
       });
@@ -103,8 +126,7 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
       onClose();
     } catch (error) {
       console.error('Failed to create bookmark:', error);
-    } finally {
-      setIsCreating(false);
+      setError('Failed to save bookmark. Please try again.');
     }
   };
 
@@ -158,11 +180,12 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
           </button>
         </div>
 
-        {/* Content - Scrollable */}
+        {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+          {/* Content - Scrollable */}
           <div className="flex-1 overflow-y-auto">
             <div className="p-4 space-y-4">
-              {/* URL */}
+              {/* URL Input */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   URL
@@ -170,11 +193,20 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
                 <input
                   type="url"
                   value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  onChange={(e) => handleUrlChange(e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${
+                    url && !isValidUrl(url) 
+                      ? 'border-red-300 focus:ring-red-500' 
+                      : 'border-gray-200'
+                  }`}
                   placeholder="Enter webpage URL..."
                   required
                 />
+                {url && !isValidUrl(url) && (
+                  <p className="mt-1 text-sm text-red-600">
+                    Please enter a valid URL
+                  </p>
+                )}
               </div>
 
               {/* Title */}
@@ -200,17 +232,18 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
                   </label>
                   <button
                     type="button"
-                    onClick={generateSummary}
-                    className="text-sm text-primary hover:text-primary-dark transition-colors"
-                    disabled={isGeneratingSummary || !url}
+                    onClick={handleGenerateDescription}
+                    className="text-sm text-primary hover:text-primary-dark transition-colors disabled:opacity-50"
+                    disabled={isGeneratingDescription || isAILoading}
                   >
-                    {isGeneratingSummary ? 'Generating...' : 'Generate AI Summary'}
+                    {isGeneratingDescription ? 'Generating...' : 'Generate AI Description'}
                   </button>
                 </div>
+
                 <RichTextEditor
                   content={description}
                   onChange={setDescription}
-                  placeholder="Enter description or generate AI summary..."
+                  placeholder="Enter or generate a description..."
                 />
               </div>
 
@@ -240,14 +273,6 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
                   <label className="block text-sm font-medium text-gray-700">
                     Tags
                   </label>
-                  <button
-                    type="button"
-                    onClick={generateAITags}
-                    className="text-sm text-primary hover:text-primary-dark transition-colors"
-                    disabled={isGeneratingTags || !url}
-                  >
-                    {isGeneratingTags ? 'Generating...' : 'Generate AI Tags'}
-                  </button>
                 </div>
                 
                 {/* Tag Input */}
@@ -271,10 +296,11 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
                     type="text"
                     className="flex-1 min-w-[100px] focus:outline-none bg-transparent"
                     placeholder={tags.length === 0 ? "Add tags..." : ""}
+                    value={tagInput}
                     onChange={(e) => {
                       const result = handleTagInput(e.target.value);
                       if (result !== undefined) {
-                        e.target.value = result;
+                        setTagInput(result);
                       }
                     }}
                     onKeyDown={(e) => {
@@ -283,33 +309,20 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
                         const input = e.currentTarget.value.trim();
                         if (input && !tags.includes(input)) {
                           setTags([...tags, input]);
-                          e.currentTarget.value = '';
+                          setTagInput('');
                         }
                       }
                     }}
                   />
                 </div>
-
-                {/* Suggested Tags */}
-                {suggestedTags.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {suggestedTags.map(tag => (
-                      <button
-                        key={tag}
-                        type="button"
-                        onClick={() => {
-                          if (!tags.includes(tag)) {
-                            setTags([...tags, tag]);
-                          }
-                        }}
-                        className="px-2 py-1 rounded-md bg-secondary/10 text-primary-dark text-sm hover:bg-secondary/20 transition-colors"
-                      >
-                        + {tag}
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
+
+              {/* Error Message */}
+              {error && (
+                <div className="p-3 bg-red-50 text-red-700 rounded-lg">
+                  {error}
+                </div>
+              )}
             </div>
           </div>
 
@@ -320,16 +333,14 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
                 type="button"
                 onClick={onClose}
                 className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                disabled={isCreating}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-primary text-white hover:bg-primary-dark rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={isCreating}
+                className="px-4 py-2 bg-primary text-white hover:bg-primary-dark rounded-lg transition-colors"
               >
-                {isCreating ? 'Creating...' : 'Create Bookmark'}
+                Save Bookmark
               </button>
             </div>
           </div>
