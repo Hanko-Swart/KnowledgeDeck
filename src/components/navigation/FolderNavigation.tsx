@@ -16,9 +16,9 @@ export const FolderNavigation: React.FC<FolderNavigationProps> = ({
   const [isFolderPanelOpen, setIsFolderPanelOpen] = useState(false);
 
   return (
-    <>
+    <div className="relative">
       {/* Navigation Bar */}
-      <div className="sticky top-0 z-10 flex items-center justify-between h-14 px-4 border-b border-secondary/20 bg-white/80 backdrop-blur-sm">
+      <div className="flex items-center justify-between h-14 px-4 border-b border-secondary/20 bg-white">
         <div className="flex items-center gap-3">
           <button
             onClick={onBack}
@@ -67,17 +67,9 @@ export const FolderNavigation: React.FC<FolderNavigationProps> = ({
         </button>
       </div>
 
-      {/* Backdrop with blur - positioned behind the panel */}
-      {isFolderPanelOpen && (
-        <div
-          className="fixed inset-0 bg-white/10 backdrop-blur-sm transition-opacity duration-300"
-          onClick={() => setIsFolderPanelOpen(false)}
-        />
-      )}
-
-      {/* Folder Panel - positioned above the backdrop */}
+      {/* Folder Panel */}
       <div
-        className={`fixed top-0 right-0 h-full w-72 bg-white shadow-xl transform transition-transform duration-300 ease-in-out z-20 ${
+        className={`fixed top-0 right-0 h-full w-72 bg-white shadow-xl transform transition-transform duration-300 ease-in-out z-30 ${
           isFolderPanelOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -94,6 +86,14 @@ export const FolderNavigation: React.FC<FolderNavigationProps> = ({
           />
         </div>
       </div>
-    </>
+
+      {/* Backdrop */}
+      {isFolderPanelOpen && (
+        <div 
+          className="fixed inset-0 bg-black/5 backdrop-blur-sm transition-all duration-300 z-20"
+          onClick={() => setIsFolderPanelOpen(false)}
+        />
+      )}
+    </div>
   );
 }; 
