@@ -5,8 +5,10 @@ import { FolderCard } from '@components/folders/FolderCard';
 import { FolderNavigation } from '@components/navigation/FolderNavigation';
 import type { CardData } from '@components/cards/Card';
 import type { Folder } from '@/types/folder';
+import type { Note } from '@/types/note';
 import { AddNewMenu } from '@components/modals/AddNewMenu';
 import { getFolders, saveFolders } from '@/storage/folderStorage';
+import { getNotes } from '@/storage/noteStorage';
 import { BottomActionBar } from '@components/layout/BottomActionBar';
 
 export const Sidebar: React.FC = () => {
@@ -14,10 +16,24 @@ export const Sidebar: React.FC = () => {
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
   const [mockFolders, setMockFolders] = useState<Folder[]>([]);
+  const [notes, setNotes] = useState<CardData[]>([]);
 
-  // Load folders from storage on component mount
+  // Convert Note to CardData
+  const convertNoteToCard = (note: Note): CardData => ({
+    id: note.id,
+    type: 'note',
+    title: note.title,
+    description: note.content,
+    tags: note.tags,
+    createdAt: note.createdAt,
+    updatedAt: note.updatedAt,
+    folderId: note.folderId,
+  });
+
+  // Load folders and notes from storage on component mount
   useEffect(() => {
-    const loadFolders = async () => {
+    const loadData = async () => {
+      // Load folders
       const storedFolders = await getFolders();
       if (storedFolders.length > 0) {
         setMockFolders(storedFolders);
@@ -32,8 +48,12 @@ export const Sidebar: React.FC = () => {
         setMockFolders(defaultFolders);
         await saveFolders(defaultFolders);
       }
+
+      // Load notes and convert them to CardData
+      const storedNotes = await getNotes();
+      setNotes(storedNotes.map(convertNoteToCard));
     };
-    loadFolders();
+    loadData();
   }, []);
 
   // Save folders whenever they change
@@ -86,7 +106,7 @@ export const Sidebar: React.FC = () => {
     const childFolderIds = mockFolders
       .filter(f => f.parentId === folderId)
       .map(f => f.id);
-    return mockCards.filter(c => 
+    return notes.filter(c => 
       c.folderId === folderId || childFolderIds.includes(c.folderId || '')
     );
   };
@@ -96,7 +116,7 @@ export const Sidebar: React.FC = () => {
     ? mockFolders.find(f => f.id === currentFolderId)
     : null;
   const currentItems = currentFolderId 
-    ? mockCards.filter(c => c.folderId === currentFolderId)
+    ? notes.filter(c => c.folderId === currentFolderId)
     : [];
 
   const handleColorChange = (folderId: string, color: string) => {
@@ -115,9 +135,10 @@ export const Sidebar: React.FC = () => {
     console.log('Adding bookmark to folder:', folderId);
   };
 
-  const handleAddNote = (folderId: string) => {
-    // TODO: Implement note creation
-    console.log('Adding note to folder:', folderId);
+  const handleAddNote = async (folderId: string) => {
+    // Refresh notes list after note creation
+    const updatedNotes = await getNotes();
+    setNotes(updatedNotes.map(convertNoteToCard));
   };
 
   const handleAddFlowDiagram = (folderId: string) => {
@@ -134,29 +155,10 @@ export const Sidebar: React.FC = () => {
     setMockFolders(prev => [...prev, newFolder]);
   };
 
-  // Generate color styles based on the folder's color
-  const getColorStyles = (baseColor: string = '#10656d') => {
-    const hex = baseColor.replace('#', '');
-    const r = parseInt(hex.substr(0, 2), 16) / 255;
-    const g = parseInt(hex.substr(2, 2), 16) / 255;
-    const b = parseInt(hex.substr(4, 2), 16) / 255;
-    const luminance = (0.299 * r + 0.587 * g + 0.114 * b);
-    const isLight = luminance > 0.5;
-
-    return {
-      background: baseColor,
-      textColor: isLight ? '#1a4d63' : '#ffffff',
-      mutedTextColor: isLight ? 'rgba(26, 77, 99, 0.8)' : 'rgba(255, 255, 255, 0.8)',
-      iconBg: isLight ? `${baseColor}20` : 'rgba(255, 255, 255, 0.15)',
-    };
-  };
-
-  const colors = currentFolder?.color ? getColorStyles(currentFolder.color) : null;
-
   return (
     <div className="flex flex-col h-screen bg-white">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-primary text-white">
+      <div className="flex items-center justify-between px-4 py-3 bg-gray-900 text-white">
         <div className="flex items-center gap-2">
           <svg
             className="w-6 h-6"
@@ -220,24 +222,24 @@ export const Sidebar: React.FC = () => {
           <div className="px-4 py-2 flex items-center justify-end border-b border-gray-200">
             <div className="flex items-center gap-2">
               <button
-                className={`p-1.5 rounded transition-colors`}
+                className={`p-1.5 rounded transition-colors ${
+                  viewMode === 'list'
+                    ? 'bg-gray-100 text-gray-900'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                }`}
                 onClick={() => setViewMode('list')}
-                style={{
-                  backgroundColor: viewMode === 'list' ? colors?.iconBg : 'transparent',
-                  color: viewMode === 'list' ? colors?.textColor : colors?.mutedTextColor
-                }}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                 </svg>
               </button>
               <button
-                className={`p-1.5 rounded transition-colors`}
+                className={`p-1.5 rounded transition-colors ${
+                  viewMode === 'grid'
+                    ? 'bg-gray-100 text-gray-900'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                }`}
                 onClick={() => setViewMode('grid')}
-                style={{
-                  backgroundColor: viewMode === 'grid' ? colors?.iconBg : 'transparent',
-                  color: viewMode === 'grid' ? colors?.textColor : colors?.mutedTextColor
-                }}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
@@ -253,7 +255,6 @@ export const Sidebar: React.FC = () => {
               viewMode={viewMode}
               onCardClick={handleCardClick}
               onCardEdit={handleCardEdit}
-              folderColor={currentFolder.color}
             />
           </div>
         </>

@@ -10,7 +10,6 @@ export interface CardData {
   createdAt: Date;
   updatedAt: Date;
   folderId?: string;
-  folderColor?: string;
 }
 
 interface CardProps {
@@ -18,63 +17,27 @@ interface CardProps {
   onClick?: (id: string) => void;
   onEdit?: (id: string) => void;
   className?: string;
-  folderColor?: string;
 }
 
-export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, className = '', folderColor }) => {
+export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, className = '' }) => {
   const handleClick = () => onClick?.(data.id);
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
     onEdit?.(data.id);
   };
 
-  // Generate complementary colors based on the folder color
-  const getColorStyles = (baseColor: string = '#10656d') => {
-    // Calculate luminance to determine if we should use light or dark text
-    const hex = baseColor.replace('#', '');
-    const r = parseInt(hex.substr(0, 2), 16) / 255;
-    const g = parseInt(hex.substr(2, 2), 16) / 255;
-    const b = parseInt(hex.substr(4, 2), 16) / 255;
-    const luminance = (0.299 * r + 0.587 * g + 0.114 * b);
-    const isLight = luminance > 0.5;
-
-    return {
-      background: '#ffffff',
-      borderColor: `${baseColor}15`,
-      accentColor: baseColor,
-      textColor: '#1a4d63',
-      mutedTextColor: 'rgba(26, 77, 99, 0.8)',
-      lightTextColor: 'rgba(26, 77, 99, 0.6)',
-      tagBg: `${baseColor}15`,
-      tagText: isLight ? '#1a4d63' : baseColor,
-      iconBg: `${baseColor}10`,
-    };
-  };
-
-  const colors = getColorStyles(folderColor || data.folderColor);
-
   return (
     <div
-      className={`group relative bg-white rounded-lg shadow-sm hover:shadow-md hover:translate-y-[-1px] transition-all duration-300 p-4 cursor-pointer border ${className}`}
-      style={{
-        background: colors.background,
-        borderColor: colors.borderColor,
-        '--hover-border': colors.accentColor,
-        '--accent-color': colors.accentColor,
-      } as React.CSSProperties}
+      className={`group relative bg-white rounded-lg shadow-sm hover:shadow-md hover:translate-y-[-1px] transition-all duration-300 p-4 cursor-pointer border border-gray-200 ${className}`}
       onClick={handleClick}
     >
       {/* Card Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span 
-            className="p-1.5 rounded-md"
-            style={{ backgroundColor: colors.iconBg }}
-          >
+          <span className="p-1.5 rounded-md bg-gray-100">
             {data.type === 'bookmark' ? (
               <svg 
-                className="w-4 h-4"
-                style={{ color: colors.textColor }}
+                className="w-4 h-4 text-gray-700"
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
@@ -84,8 +47,7 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, className = '
               </svg>
             ) : (
               <svg 
-                className="w-4 h-4"
-                style={{ color: colors.textColor }}
+                className="w-4 h-4 text-gray-700"
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
@@ -96,25 +58,20 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, className = '
             )}
           </span>
           <div>
-            <h3 
-              className="text-base font-medium leading-tight"
-              style={{ color: colors.textColor }}
-            >
+            <h3 className="text-base font-medium leading-tight text-gray-900">
               {data.title}
             </h3>
-            <span className="text-xs" style={{ color: colors.mutedTextColor }}>
+            <span className="text-xs text-gray-500">
               {new Date(data.createdAt).toLocaleDateString()}
             </span>
           </div>
         </div>
         <button
           onClick={handleEdit}
-          className="p-1.5 rounded-md transition-colors -mr-1"
-          style={{ backgroundColor: colors.iconBg }}
+          className="p-1.5 rounded-md transition-colors -mr-1 bg-gray-100 hover:bg-gray-200"
         >
           <svg
-            className="w-4 h-4"
-            style={{ color: colors.textColor }}
+            className="w-4 h-4 text-gray-700"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -131,20 +88,15 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, className = '
 
       {/* Card Content */}
       {data.description && (
-        <p 
-          className="text-sm leading-relaxed mb-3 line-clamp-3"
-          style={{ color: colors.mutedTextColor }}
-        >
-          {data.description}
-        </p>
+        <div 
+          className="prose prose-sm max-w-none mb-3 line-clamp-3 text-gray-600"
+          dangerouslySetInnerHTML={{ __html: data.description }}
+        />
       )}
 
       {/* URL (for bookmarks) */}
       {data.type === 'bookmark' && data.url && (
-        <div 
-          className="flex items-center text-xs mb-3"
-          style={{ color: colors.mutedTextColor }}
-        >
+        <div className="flex items-center text-xs mb-3 text-gray-600">
           <svg
             className="w-3 h-3 mr-1.5 flex-shrink-0"
             fill="none"
@@ -168,11 +120,7 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, className = '
           {data.tags.map(tag => (
             <span
               key={tag}
-              className="px-2 py-0.5 text-xs font-medium rounded-md"
-              style={{ 
-                backgroundColor: colors.tagBg,
-                color: colors.tagText,
-              }}
+              className="px-2 py-0.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700"
             >
               {tag}
             </span>

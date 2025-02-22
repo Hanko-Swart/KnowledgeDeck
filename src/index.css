@@ -36,4 +36,59 @@
   .input {
     @apply px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary;
   }
+
+  /* TipTap Editor Styles */
+  .ProseMirror {
+    @apply text-primary-dark;
+    min-height: 200px;
+  }
+
+  .ProseMirror p {
+    @apply mb-2;
+  }
+
+  .ProseMirror h1 {
+    @apply text-2xl font-bold mb-4;
+  }
+
+  .ProseMirror h2 {
+    @apply text-xl font-bold mb-3;
+  }
+
+  .ProseMirror ul {
+    @apply list-disc pl-6 mb-4;
+  }
+
+  .ProseMirror ol {
+    @apply list-decimal pl-6 mb-4;
+  }
+
+  .ProseMirror blockquote {
+    @apply border-l-4 border-gray-300 pl-4 italic my-4;
+  }
+
+  .ProseMirror .task-list {
+    @apply list-none pl-0;
+  }
+
+  .ProseMirror .task-list li {
+    @apply flex items-start gap-2;
+  }
+
+  .ProseMirror .task-list li > label {
+    @apply flex items-center gap-2 cursor-pointer;
+  }
+
+  .ProseMirror .task-list li > label > input[type="checkbox"] {
+    @apply rounded border-gray-300 text-primary focus:ring-primary;
+  }
+
+  .ProseMirror mark {
+    @apply bg-yellow-200 px-1 rounded;
+  }
+
+  .ProseMirror p.is-editor-empty:first-child::before {
+    @apply text-gray-400 float-left h-0 pointer-events-none;
+    content: attr(data-placeholder);
+  }
 } 
