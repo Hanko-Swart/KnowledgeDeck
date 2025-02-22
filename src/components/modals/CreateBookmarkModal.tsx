@@ -151,21 +151,21 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
     <>
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+        className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40"
         onClick={onClose}
       />
       
       {/* Modal */}
-      <div className="fixed inset-4 sm:inset-auto sm:top-[5%] sm:left-1/2 sm:-translate-x-1/2 sm:w-[600px] sm:max-h-[90vh] bg-white rounded-lg shadow-xl z-50 flex flex-col">
+      <div className="fixed inset-4 sm:inset-auto sm:top-[5%] sm:left-1/2 sm:-translate-x-1/2 sm:w-[600px] sm:max-h-[90vh] bg-background rounded-lg shadow-lg z-50 flex flex-col">
         {/* Header - Fixed */}
-        <div className="flex items-center justify-between px-4 py-3 border-b shrink-0">
-          <h2 className="text-lg font-medium text-primary-dark">Create New Bookmark</h2>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
+          <h2 className="text-lg font-medium text-foreground">Create New Bookmark</h2>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-secondary/10 rounded-lg transition-colors"
+            className="p-1.5 hover:bg-accent rounded-lg transition-colors"
           >
             <svg
-              className="w-5 h-5 text-gray-500"
+              className="w-5 h-5 text-muted-foreground"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -187,23 +187,23 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
             <div className="p-4 space-y-4">
               {/* URL Input */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   URL
                 </label>
                 <input
                   type="url"
                   value={url}
                   onChange={(e) => handleUrlChange(e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${
+                  className={`w-full px-3 py-2 border rounded-lg bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
                     url && !isValidUrl(url) 
-                      ? 'border-red-300 focus:ring-red-500' 
-                      : 'border-gray-200'
-                  }`}
+                      ? 'border-destructive focus:ring-destructive' 
+                      : 'border-input'
+                  } placeholder:text-muted-foreground`}
                   placeholder="Enter webpage URL..."
                   required
                 />
                 {url && !isValidUrl(url) && (
-                  <p className="mt-1 text-sm text-red-600">
+                  <p className="mt-1 text-sm text-destructive">
                     Please enter a valid URL
                   </p>
                 )}
@@ -211,14 +211,14 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
 
               {/* Title */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Title
                 </label>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 border border-input rounded-lg bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
                   placeholder="Enter bookmark title..."
                   required
                 />
@@ -227,13 +227,13 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
               {/* Description */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-foreground">
                     Description
                   </label>
                   <button
                     type="button"
                     onClick={handleGenerateDescription}
-                    className="text-sm text-primary hover:text-primary-dark transition-colors disabled:opacity-50"
+                    className="text-sm text-destructive hover:text-destructive/80 transition-colors disabled:opacity-50"
                     disabled={isGeneratingDescription || isAILoading}
                   >
                     {isGeneratingDescription ? 'Generating...' : 'Generate AI Description'}
@@ -249,18 +249,18 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
 
               {/* Folder Selection */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Folder
                 </label>
                 <select
                   value={selectedFolderId}
                   onChange={(e) => setSelectedFolderId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 border border-input rounded-lg bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                   required
                 >
-                  <option value="">Select a folder...</option>
+                  <option value="" className="bg-card text-foreground">Select a folder...</option>
                   {folders.map(folder => (
-                    <option key={folder.id} value={folder.id}>
+                    <option key={folder.id} value={folder.id} className="bg-card text-foreground">
                       {folder.name}
                     </option>
                   ))}
@@ -270,23 +270,23 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
               {/* Tags */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-foreground">
                     Tags
                   </label>
                 </div>
                 
                 {/* Tag Input */}
-                <div className="flex flex-wrap gap-2 p-2 border border-gray-200 rounded-lg min-h-[42px]">
+                <div className="flex flex-wrap gap-2 p-2 border border-input rounded-lg min-h-[42px] bg-card">
                   {tags.map(tag => (
                     <span
                       key={tag}
-                      className="inline-flex items-center px-2 py-1 rounded-md bg-primary/10 text-primary text-sm"
+                      className="inline-flex items-center px-2 py-1 rounded-md bg-destructive/10 text-destructive text-sm"
                     >
                       {tag}
                       <button
                         type="button"
                         onClick={() => removeTag(tag)}
-                        className="ml-1 hover:text-primary-dark"
+                        className="ml-1 hover:text-destructive/80"
                       >
                         ×
                       </button>
@@ -294,7 +294,7 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
                   ))}
                   <input
                     type="text"
-                    className="flex-1 min-w-[100px] focus:outline-none bg-transparent"
+                    className="flex-1 min-w-[100px] focus:outline-none bg-transparent text-foreground placeholder:text-muted-foreground"
                     placeholder={tags.length === 0 ? "Add tags..." : ""}
                     value={tagInput}
                     onChange={(e) => {
@@ -319,7 +319,7 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
 
               {/* Error Message */}
               {error && (
-                <div className="p-3 bg-red-50 text-red-700 rounded-lg">
+                <div className="p-3 bg-destructive/10 text-destructive rounded-lg">
                   {error}
                 </div>
               )}
@@ -327,18 +327,18 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
           </div>
 
           {/* Footer - Fixed */}
-          <div className="px-4 py-3 border-t mt-auto shrink-0">
+          <div className="px-4 py-3 border-t border-border mt-auto shrink-0">
             <div className="flex justify-end gap-3">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                className="px-4 py-2 text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-primary text-white hover:bg-primary-dark rounded-lg transition-colors"
+                className="px-4 py-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-lg transition-colors"
               >
                 Save Bookmark
               </button>

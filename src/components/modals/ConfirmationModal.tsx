@@ -56,7 +56,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         <div className="fixed inset-0 transition-opacity bg-background/80 backdrop-blur-sm" onClick={onClose} />
 
         {/* Modal panel */}
-        <div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-card rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+        <div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-card rounded-lg shadow-lg sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
           <div className="px-4 pt-5 pb-4 bg-card sm:p-6 sm:pb-4">
             <div className="sm:flex sm:items-start">
               <div className="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-muted rounded-full sm:mx-0 sm:h-10 sm:w-10">
