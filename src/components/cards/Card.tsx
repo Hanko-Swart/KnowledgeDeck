@@ -30,9 +30,7 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, onDelete, cla
   };
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm('Are you sure you want to delete this item?')) {
-      onDelete?.(data.id);
-    }
+    onDelete?.(data.id);
   };
 
   return (

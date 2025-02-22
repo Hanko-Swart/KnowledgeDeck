@@ -13,6 +13,7 @@ import { BottomActionBar } from '@components/layout/BottomActionBar';
 import { AISettings } from '@components/settings/AISettings';
 import { getAllBookmarks } from '@/storage/bookmarkStorage';
 import { FolderOutlined, NoteAddOutlined, BookmarkAddOutlined, AccountTreeOutlined } from '@mui/icons-material';
+import { ConfirmationModal } from '@components/modals/ConfirmationModal';
 
 export const Sidebar: React.FC = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
@@ -21,6 +22,12 @@ export const Sidebar: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [mockFolders, setMockFolders] = useState<Folder[]>([]);
   const [notes, setNotes] = useState<CardData[]>([]);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{
+    isOpen: boolean;
+    type: 'folder' | 'card';
+    id: string;
+    name: string;
+  } | null>(null);
 
   // Convert Note to CardData
   const convertNoteToCard = (note: Note): CardData => ({
@@ -40,19 +47,7 @@ export const Sidebar: React.FC = () => {
       try {
         // Load folders
         const storedFolders = await getFolders();
-        if (storedFolders.length > 0) {
-          setMockFolders(storedFolders);
-        } else {
-          // Initialize with default folders if none exist
-          const defaultFolders: Folder[] = [
-            { id: '1', name: 'Research', parentId: null, color: '#1a4d63' },
-            { id: '2', name: 'Projects', parentId: null },
-            { id: '3', name: 'Articles', parentId: '1' },
-            { id: '4', name: 'Ideas', parentId: '2' },
-          ];
-          setMockFolders(defaultFolders);
-          await saveFolders(defaultFolders);
-        }
+        setMockFolders(storedFolders);
 
         // Load notes and convert them to CardData
         const storedNotes = await getNotes();
@@ -195,64 +190,82 @@ export const Sidebar: React.FC = () => {
   };
 
   const handleDeleteFolder = async (folderId: string) => {
-    try {
-      const result = await chrome.storage.local.get(['folders', 'cards']);
-      const folders = result.folders || [];
-      const cards = result.cards || [];
-      
-      // Get all descendant folder IDs (including the folder to delete)
-      const folderIdsToDelete = new Set<string>();
-      
-      const collectFolderIds = (parentId: string) => {
-        folderIdsToDelete.add(parentId);
-        folders
-          .filter((f: Folder) => f.parentId === parentId)
-          .forEach((f: Folder) => collectFolderIds(f.id));
-      };
-      
-      collectFolderIds(folderId);
-      
-      // Remove all folders in the set
-      const updatedFolders = folders.filter((f: Folder) => !folderIdsToDelete.has(f.id));
-      
-      // Remove all cards in the deleted folders
-      const updatedCards = cards.filter((c: CardData) => c.folderId && !folderIdsToDelete.has(c.folderId));
-      
-      // Update storage
-      await chrome.storage.local.set({
-        folders: updatedFolders,
-        cards: updatedCards
-      });
-      
-      // Update state
-      setMockFolders(updatedFolders);
-      setNotes(updatedCards);
-      
-      // If we deleted the current folder or any of its ancestors, go back to home
-      if (currentFolder && folderIdsToDelete.has(currentFolder.id)) {
-        setCurrentFolderId(null);
-      }
-    } catch (error) {
-      console.error('Error deleting folder:', error);
-    }
+    const folder = mockFolders.find(f => f.id === folderId);
+    if (!folder) return;
+
+    setDeleteConfirmation({
+      isOpen: true,
+      type: 'folder',
+      id: folderId,
+      name: folder.name
+    });
   };
 
   const handleDeleteCard = async (cardId: string) => {
+    const card = notes.find(n => n.id === cardId);
+    if (!card) return;
+
+    setDeleteConfirmation({
+      isOpen: true,
+      type: 'card',
+      id: cardId,
+      name: card.title
+    });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmation) return;
+
+    const { type, id } = deleteConfirmation;
+
     try {
-      await chrome.storage.local.get(['cards'], (result) => {
-        const cards: CardData[] = result.cards || [];
+      if (type === 'folder') {
+        // Get all descendant folder IDs (including the folder to delete)
+        const folderIdsToDelete = new Set<string>();
         
-        // Remove the card
-        const updatedCards = cards.filter((c: CardData) => c.id !== cardId);
+        const collectFolderIds = (parentId: string) => {
+          folderIdsToDelete.add(parentId);
+          mockFolders
+            .filter(f => f.parentId === parentId)
+            .forEach(f => collectFolderIds(f.id));
+        };
         
-        // Update storage
-        chrome.storage.local.set({ cards: updatedCards });
+        collectFolderIds(id);
         
-        // Update state
+        // Remove all folders in the set
+        const updatedFolders = mockFolders.filter(f => !folderIdsToDelete.has(f.id));
+        
+        // Remove all cards in the deleted folders
+        const updatedCards = notes.filter(c => c.folderId && !folderIdsToDelete.has(c.folderId));
+        
+        // Update storage and state
+        await saveFolders(updatedFolders);
+        setMockFolders(updatedFolders);
         setNotes(updatedCards);
-      });
+        
+        // If we deleted the current folder or any of its ancestors, go back to home
+        if (currentFolder && folderIdsToDelete.has(currentFolder.id)) {
+          setCurrentFolderId(null);
+        }
+      } else {
+        // Remove the card from state
+        const updatedCards = notes.filter(c => c.id !== id);
+        setNotes(updatedCards);
+        
+        // Remove from appropriate storage based on type
+        const card = notes.find(n => n.id === id);
+        if (card?.type === 'bookmark') {
+          await chrome.storage.local.remove([`bookmark_${id}`]);
+        } else {
+          await chrome.storage.local.remove([`note_${id}`]);
+        }
+      }
+
+      // Close the confirmation modal
+      setDeleteConfirmation(null);
     } catch (error) {
-      console.error('Error deleting card:', error);
+      console.error(`Error deleting ${type}:`, error);
+      // TODO: Show error message to user
     }
   };
 
@@ -477,6 +490,22 @@ export const Sidebar: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={!!deleteConfirmation}
+        onClose={() => setDeleteConfirmation(null)}
+        onConfirm={confirmDelete}
+        title={`Delete ${deleteConfirmation?.type === 'folder' ? 'Folder' : 'Item'}`}
+        message={deleteConfirmation ? (
+          deleteConfirmation.type === 'folder'
+            ? `Are you sure you want to delete "${deleteConfirmation.name}" and all its contents? This action cannot be undone.`
+            : `Are you sure you want to delete "${deleteConfirmation.name}"? This action cannot be undone.`
+        ) : ''}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        type="danger"
+      />
     </div>
   );
 }; 

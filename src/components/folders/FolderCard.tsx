@@ -40,9 +40,7 @@ export const FolderCard: React.FC<FolderCardProps> = ({
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm('Are you sure you want to delete this folder and all its contents?')) {
-      onDelete?.(folder.id);
-    }
+    onDelete?.(folder.id);
   };
 
   return (
