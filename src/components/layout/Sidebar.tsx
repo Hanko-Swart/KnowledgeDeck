@@ -477,7 +477,7 @@ export const Sidebar: React.FC = () => {
           />
           <div className="absolute inset-4 sm:inset-auto sm:top-[5%] sm:left-1/2 sm:-translate-x-1/2 sm:w-[600px] sm:max-h-[90vh] bg-white rounded-lg shadow-xl overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b">
-              <h2 className="text-lg font-medium">AI Settings</h2>
+              <h2 className="text-lg font-medium">Settings</h2>
               <button
                 onClick={() => setIsSettingsOpen(false)}
                 className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
@@ -497,8 +497,37 @@ export const Sidebar: React.FC = () => {
                 </svg>
               </button>
             </div>
-            <div className="p-4">
-              <AISettings />
+            <div className="p-4 space-y-6 overflow-y-auto max-h-[calc(90vh-8rem)]">
+              {/* Quick Actions */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-900 mb-3">Quick Actions</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <button className="flex items-center justify-center gap-2 p-3 text-sm text-primary-dark hover:bg-secondary/10 rounded-lg transition-colors border border-gray-200">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    Import Bookmarks
+                  </button>
+                  <button className="flex items-center justify-center gap-2 p-3 text-sm text-primary-dark hover:bg-secondary/10 rounded-lg transition-colors border border-gray-200">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Export Data
+                  </button>
+                  <button className="flex items-center justify-center gap-2 p-3 text-sm text-primary-dark hover:bg-secondary/10 rounded-lg transition-colors border border-gray-200">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Sync Status
+                  </button>
+                </div>
+              </div>
+
+              {/* AI Settings */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-900 mb-3">AI Settings</h3>
+                <AISettings />
+              </div>
             </div>
           </div>
         </div>
