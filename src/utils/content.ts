@@ -4,7 +4,7 @@ export interface PageContent {
   metaDescription?: string;
 }
 
-export const extractPageContent = async (url: string): Promise<PageContent> => {
+export const extractPageContent = async (_url: string): Promise<PageContent> => {
   try {
     // Query the active tab to get the page content
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });

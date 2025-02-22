@@ -1,4 +1,12 @@
-import type { AIService, AIConfig, AIResponse, TagGenerationResponse, SummaryGenerationResponse, SimilaritySearchResponse } from '@/types/ai';
+import type { 
+  AIService, 
+  AIConfig, 
+  /* @ts-expect-error - These types are part of the API contract */
+  AIResponse, 
+  TagGenerationResponse, 
+  SummaryGenerationResponse, 
+  SimilaritySearchResponse 
+} from '@/types/ai';
 import { AIConfigManager } from './config';
 import { HuggingFaceService } from './huggingface';
 import { FallbackAIService } from './fallback';
