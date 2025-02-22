@@ -22,8 +22,7 @@ import {
   Grid,
   Upload,
   Download,
-  RefreshCw,
-  X
+  RefreshCw
 } from 'lucide-react';
 import { ConfirmationModal } from '@components/modals/ConfirmationModal';
 import { CreateFolderModal } from '@components/modals/CreateFolderModal';
@@ -105,30 +104,6 @@ export const Sidebar: React.FC = () => {
     saveFolders(mockFolders);
   }, [mockFolders]);
 
-  const mockCards: CardData[] = [
-    {
-      id: '1',
-      type: 'bookmark',
-      title: 'Getting Started with Chrome Extensions',
-      description: 'Learn how to build Chrome extensions using Manifest V3',
-      url: 'https://developer.chrome.com/docs/extensions/mv3/getstarted/',
-      tags: ['chrome', 'development', 'tutorial'],
-      createdAt: new Date('2024-02-22'),
-      updatedAt: new Date('2024-02-22'),
-      folderId: '1'
-    },
-    {
-      id: '2',
-      type: 'note',
-      title: 'Extension Ideas',
-      description: 'Some ideas for future extension features:\n- AI integration\n- Better search\n- Dark mode',
-      tags: ['ideas', 'features'],
-      createdAt: new Date('2024-02-22'),
-      updatedAt: new Date('2024-02-22'),
-      folderId: '2'
-    }
-  ];
-
   const handleSearch = (query: string) => {
     console.log('Searching for:', query);
     // TODO: Implement search functionality
@@ -142,17 +117,6 @@ export const Sidebar: React.FC = () => {
   const handleCardEdit = (id: string) => {
     console.log('Edit card:', id);
     // TODO: Implement card editing
-  };
-
-  // Get top-level folders and their items
-  const rootFolders = mockFolders.filter(f => !f.parentId);
-  const getFolderItems = (folderId: string) => {
-    const childFolderIds = mockFolders
-      .filter(f => f.parentId === folderId)
-      .map(f => f.id);
-    return notes.filter(c => 
-      c.folderId === folderId || childFolderIds.includes(c.folderId || '')
-    );
   };
 
   // Get current folder and its items
@@ -174,7 +138,7 @@ export const Sidebar: React.FC = () => {
     });
   };
 
-  const handleAddBookmark = async (folderId: string) => {
+  const handleAddBookmark = async (_folderId: string) => {
     // Refresh bookmarks list after bookmark creation
     const updatedBookmarks = await getAllBookmarks();
     const bookmarkCards = updatedBookmarks.map(bookmark => ({
@@ -191,7 +155,7 @@ export const Sidebar: React.FC = () => {
     setNotes(prev => [...prev.filter(note => note.type !== 'bookmark'), ...bookmarkCards]);
   };
 
-  const handleAddNote = async (folderId: string) => {
+  const handleAddNote = async (_folderId: string) => {
     // Refresh notes list after note creation
     const updatedNotes = await getNotes();
     setNotes(updatedNotes.map(convertNoteToCard));
