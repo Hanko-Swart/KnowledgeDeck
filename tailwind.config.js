@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   darkMode: ["class"],
   content: [
     "./index.html",
@@ -15,20 +15,6 @@ export default {
     },
     extend: {
       colors: {
-        // Custom brand colors
-        brand: {
-          dark: '#0c3547',    // Very dark blue
-          DEFAULT: '#10656d', // Very dark cyan
-          light: '#598f91',   // Mostly desaturated dark cyan
-        },
-        accent: {
-          dark: '#93b071',    // Mostly desaturated dark green
-          DEFAULT: '#dd6670', // Soft red
-          light: '#edae93',   // Very soft orange
-        },
-        highlight: '#ede2cc', // Light grayish orange
-
-        // shadcn/ui theme colors
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -50,13 +36,17 @@ export default {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
         },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
         },
       },
       borderRadius: {
@@ -66,12 +56,12 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: { height: "0" },
+          from: { height: 0 },
           to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
           from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
+          to: { height: 0 },
         },
       },
       animation: {
