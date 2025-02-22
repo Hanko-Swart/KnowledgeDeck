@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SearchBar } from '@components/search/SearchBar';
 import { CardGrid } from '@components/cards/CardGrid';
 import { FolderCard } from '@components/folders/FolderCard';
@@ -6,17 +6,39 @@ import { FolderNavigation } from '@components/navigation/FolderNavigation';
 import type { CardData } from '@components/cards/Card';
 import type { Folder } from '@/types/folder';
 import { AddNewMenu } from '@components/modals/AddNewMenu';
+import { getFolders, saveFolders } from '@/storage/folderStorage';
 
 export const Sidebar: React.FC = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
-  const [mockFolders, setMockFolders] = useState<Folder[]>([
-    { id: '1', name: 'Research', parentId: null, color: '#1a4d63' },
-    { id: '2', name: 'Projects', parentId: null },
-    { id: '3', name: 'Articles', parentId: '1' },
-    { id: '4', name: 'Ideas', parentId: '2' },
-  ]);
+  const [mockFolders, setMockFolders] = useState<Folder[]>([]);
+
+  // Load folders from storage on component mount
+  useEffect(() => {
+    const loadFolders = async () => {
+      const storedFolders = await getFolders();
+      if (storedFolders.length > 0) {
+        setMockFolders(storedFolders);
+      } else {
+        // Initialize with default folders if none exist
+        const defaultFolders: Folder[] = [
+          { id: '1', name: 'Research', parentId: null, color: '#1a4d63' },
+          { id: '2', name: 'Projects', parentId: null },
+          { id: '3', name: 'Articles', parentId: '1' },
+          { id: '4', name: 'Ideas', parentId: '2' },
+        ];
+        setMockFolders(defaultFolders);
+        await saveFolders(defaultFolders);
+      }
+    };
+    loadFolders();
+  }, []);
+
+  // Save folders whenever they change
+  useEffect(() => {
+    saveFolders(mockFolders);
+  }, [mockFolders]);
 
   const mockCards: CardData[] = [
     {
@@ -77,11 +99,14 @@ export const Sidebar: React.FC = () => {
     : [];
 
   const handleColorChange = (folderId: string, color: string) => {
-    setMockFolders(prev => prev.map(folder => 
-      folder.id === folderId 
-        ? { ...folder, color } 
-        : folder
-    ));
+    setMockFolders(prev => {
+      const updated = prev.map(folder => 
+        folder.id === folderId 
+          ? { ...folder, color } 
+          : folder
+      );
+      return updated;
+    });
   };
 
   const handleAddBookmark = async (folderId: string) => {

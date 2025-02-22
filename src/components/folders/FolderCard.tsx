@@ -40,10 +40,40 @@ export const FolderCard: React.FC<FolderCardProps> = ({
   
   // Generate color styles based on the folder's color
   const getColorStyles = (baseColor: string = '#10656d') => {
+    // Calculate luminance to determine if we should use light or dark text
+    const hex = baseColor.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16) / 255;
+    const g = parseInt(hex.substr(2, 2), 16) / 255;
+    const b = parseInt(hex.substr(4, 2), 16) / 255;
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b);
+    const isLight = luminance > 0.5;
+
+    // For light backgrounds, we use darker shades of the same color
+    // For dark backgrounds, we use lighter shades of white
+    const getShade = (opacity: number) => {
+      if (isLight) {
+        // Darken the base color for text on light backgrounds
+        const darkenAmount = 0.4; // 40% darker
+        const darkR = Math.max(r - darkenAmount, 0);
+        const darkG = Math.max(g - darkenAmount, 0);
+        const darkB = Math.max(b - darkenAmount, 0);
+        return `rgba(${darkR * 255}, ${darkG * 255}, ${darkB * 255}, ${opacity})`;
+      } else {
+        // Use white with opacity for text on dark backgrounds
+        return `rgba(255, 255, 255, ${opacity})`;
+      }
+    };
+
     return {
-      background: `linear-gradient(to right bottom, ${baseColor}08, ${baseColor}15)`,
-      borderColor: `${baseColor}20`,
+      background: baseColor,
+      borderColor: isLight ? `${baseColor}70` : 'rgba(255, 255, 255, 0.2)',
       accentColor: baseColor,
+      textColor: getShade(1), // Full opacity for main text
+      mutedTextColor: getShade(0.8), // 80% opacity for secondary text
+      lightTextColor: getShade(0.6), // 60% opacity for tertiary text
+      tagBg: isLight ? `${baseColor}20` : 'rgba(255, 255, 255, 0.15)',
+      tagText: isLight ? baseColor : '#ffffff',
+      iconBg: isLight ? `${baseColor}20` : 'rgba(255, 255, 255, 0.15)',
     };
   };
 
@@ -65,7 +95,7 @@ export const FolderCard: React.FC<FolderCardProps> = ({
       }}
     >
       {/* Color Picker Button */}
-      <div className="absolute top-3 right-3 z-20">
+      <div className="absolute top-3 right-3 z-[100]">
         <button
           className="p-1.5 rounded-lg hover:bg-black/5 transition-colors"
           onClick={(e) => {
@@ -93,15 +123,17 @@ export const FolderCard: React.FC<FolderCardProps> = ({
         {/* Color Picker Popup */}
         {isColorPickerOpen && (
           <>
+            {/* Backdrop */}
             <div 
-              className="fixed inset-0 z-30" 
+              className="fixed inset-0 z-[9998]" 
               onClick={(e) => {
                 e.stopPropagation();
                 setIsColorPickerOpen(false);
               }}
             />
+            {/* Color Picker Panel */}
             <div 
-              className="absolute right-0 top-8 bg-white rounded-lg shadow-xl border border-gray-200 p-3 w-48 z-40"
+              className="absolute right-0 top-8 bg-white rounded-lg shadow-xl border border-gray-200 p-3 w-48 z-[9999]"
               onClick={e => e.stopPropagation()}
             >
               <div className="grid grid-cols-4 gap-2">
@@ -135,11 +167,11 @@ export const FolderCard: React.FC<FolderCardProps> = ({
       <div className="flex items-center gap-2 mb-3">
         <span 
           className="p-1.5 rounded-lg relative"
-          style={{ backgroundColor: `${colors.accentColor}15` }}
+          style={{ backgroundColor: colors.iconBg }}
         >
           <svg
             className="w-5 h-5"
-            style={{ color: colors.accentColor }}
+            style={{ color: colors.textColor }}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -162,13 +194,13 @@ export const FolderCard: React.FC<FolderCardProps> = ({
         <div>
           <h3 
             className="text-base font-medium leading-tight"
-            style={{ color: colors.accentColor }}
+            style={{ color: colors.textColor }}
           >
             {folder.name}
           </h3>
           <span 
             className="text-xs"
-            style={{ color: `${colors.accentColor}70` }}
+            style={{ color: colors.mutedTextColor }}
           >
             {items.length} items
           </span>
@@ -182,7 +214,7 @@ export const FolderCard: React.FC<FolderCardProps> = ({
             <div 
               key={item.id} 
               className="text-sm truncate"
-              style={{ color: `${colors.accentColor}80` }}
+              style={{ color: colors.mutedTextColor }}
             >
               {item.type === 'bookmark' ? '🔖' : '📝'} {item.title}
             </div>
@@ -190,7 +222,7 @@ export const FolderCard: React.FC<FolderCardProps> = ({
           {items.length > 2 && (
             <div 
               className="text-sm"
-              style={{ color: `${colors.accentColor}60` }}
+              style={{ color: colors.lightTextColor }}
             >
               +{items.length - 2} more...
             </div>
@@ -199,7 +231,7 @@ export const FolderCard: React.FC<FolderCardProps> = ({
       ) : (
         <div 
           className="text-sm mb-3"
-          style={{ color: `${colors.accentColor}60` }}
+          style={{ color: colors.lightTextColor }}
         >
           Empty folder
         </div>
@@ -213,8 +245,8 @@ export const FolderCard: React.FC<FolderCardProps> = ({
               key={tag}
               className="px-2 py-0.5 text-xs rounded-lg"
               style={{ 
-                backgroundColor: `${colors.accentColor}10`,
-                color: `${colors.accentColor}90`,
+                backgroundColor: colors.tagBg,
+                color: colors.tagText,
               }}
             >
               {tag}
@@ -223,7 +255,7 @@ export const FolderCard: React.FC<FolderCardProps> = ({
           {tags.length > 3 && (
             <span 
               className="text-xs"
-              style={{ color: `${colors.accentColor}60` }}
+              style={{ color: colors.lightTextColor }}
             >
               +{tags.length - 3} more
             </span>
