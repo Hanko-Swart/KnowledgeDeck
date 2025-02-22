@@ -5,8 +5,10 @@ import { FolderCard } from '@components/folders/FolderCard';
 import { FolderNavigation } from '@components/navigation/FolderNavigation';
 import type { CardData } from '@components/cards/Card';
 import type { Folder } from '@/types/folder';
+import type { Note } from '@/types/note';
 import { AddNewMenu } from '@components/modals/AddNewMenu';
 import { getFolders, saveFolders } from '@/storage/folderStorage';
+import { getNotes } from '@/storage/noteStorage';
 import { BottomActionBar } from '@components/layout/BottomActionBar';
 
 export const Sidebar: React.FC = () => {
@@ -14,10 +16,24 @@ export const Sidebar: React.FC = () => {
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
   const [mockFolders, setMockFolders] = useState<Folder[]>([]);
+  const [notes, setNotes] = useState<CardData[]>([]);
 
-  // Load folders from storage on component mount
+  // Convert Note to CardData
+  const convertNoteToCard = (note: Note): CardData => ({
+    id: note.id,
+    type: 'note',
+    title: note.title,
+    description: note.content,
+    tags: note.tags,
+    createdAt: note.createdAt,
+    updatedAt: note.updatedAt,
+    folderId: note.folderId,
+  });
+
+  // Load folders and notes from storage on component mount
   useEffect(() => {
-    const loadFolders = async () => {
+    const loadData = async () => {
+      // Load folders
       const storedFolders = await getFolders();
       if (storedFolders.length > 0) {
         setMockFolders(storedFolders);
@@ -32,8 +48,12 @@ export const Sidebar: React.FC = () => {
         setMockFolders(defaultFolders);
         await saveFolders(defaultFolders);
       }
+
+      // Load notes and convert them to CardData
+      const storedNotes = await getNotes();
+      setNotes(storedNotes.map(convertNoteToCard));
     };
-    loadFolders();
+    loadData();
   }, []);
 
   // Save folders whenever they change
@@ -86,7 +106,7 @@ export const Sidebar: React.FC = () => {
     const childFolderIds = mockFolders
       .filter(f => f.parentId === folderId)
       .map(f => f.id);
-    return mockCards.filter(c => 
+    return notes.filter(c => 
       c.folderId === folderId || childFolderIds.includes(c.folderId || '')
     );
   };
@@ -96,7 +116,7 @@ export const Sidebar: React.FC = () => {
     ? mockFolders.find(f => f.id === currentFolderId)
     : null;
   const currentItems = currentFolderId 
-    ? mockCards.filter(c => c.folderId === currentFolderId)
+    ? notes.filter(c => c.folderId === currentFolderId)
     : [];
 
   const handleColorChange = (folderId: string, color: string) => {
@@ -116,8 +136,9 @@ export const Sidebar: React.FC = () => {
   };
 
   const handleAddNote = async (folderId: string) => {
-    // We don't need to implement anything here anymore since the modal handles note creation
-    console.log('Note creation is now handled by the modal');
+    // Refresh notes list after note creation
+    const updatedNotes = await getNotes();
+    setNotes(updatedNotes.map(convertNoteToCard));
   };
 
   const handleAddFlowDiagram = (folderId: string) => {

@@ -180,6 +180,10 @@ export const BottomActionBar: React.FC<BottomActionBarProps> = ({
         onClose={() => setIsNoteModalOpen(false)}
         folders={folders}
         currentFolderId={currentFolderId}
+        onNoteCreated={() => {
+          setIsNoteModalOpen(false);
+          onAddNote?.(currentFolderId || '');
+        }}
       />
     </>
   );
