@@ -20,12 +20,19 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       StarterKit.configure({
         heading: false,
         bulletList: {
-          keepMarks: true,
-          keepAttributes: false,
+          HTMLAttributes: {
+            class: 'list-disc ml-4 my-2',
+          },
         },
         orderedList: {
-          keepMarks: true,
-          keepAttributes: false,
+          HTMLAttributes: {
+            class: 'list-decimal ml-4 my-2',
+          },
+        },
+        paragraph: {
+          HTMLAttributes: {
+            class: 'my-2',
+          },
         },
       }),
       Highlight.configure({
@@ -42,7 +49,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm focus:outline-none min-h-[200px] max-w-none px-4 py-2',
+        class: 'prose prose-sm focus:outline-none min-h-[200px] max-w-none px-4 py-2 [&>*:first-child]:mt-0 [&>*:last-child]:mb-0',
       },
     },
   });
@@ -61,9 +68,10 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             editor.isActive('bold') ? 'bg-gray-200' : ''
           }`}
           title="Bold"
+          type="button"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 12h8a4 4 0 100-8H6v8zm0 0h8a4 4 0 110 8H6v-8z" />
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 12h8a4 4 0 0 0 0-8H6v8zm0 0h8a4 4 0 0 1 0 8H6v-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
 
@@ -73,9 +81,10 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             editor.isActive('italic') ? 'bg-gray-200' : ''
           }`}
           title="Italic"
+          type="button"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 4h-9M14 20H5M15 4L9 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
 
@@ -87,9 +96,10 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             editor.isActive('bulletList') ? 'bg-gray-200' : ''
           }`}
           title="Bullet List"
+          type="button"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
 
@@ -99,9 +109,10 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             editor.isActive('orderedList') ? 'bg-gray-200' : ''
           }`}
           title="Numbered List"
+          type="button"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20h14M7 12h14M7 4h14M3 20h.01M3 12h.01M3 4h.01" />
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 6h11M10 12h11M10 18h11M4 6h1v4M4 10h1M3 16.5h2M3 16.5L5 18M3 16.5L5 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
 
@@ -113,9 +124,10 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             editor.isActive('highlight') ? 'bg-gray-200' : ''
           }`}
           title="Highlight"
+          type="button"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15 5l4 4M13 7l4 4M9.5 10.5l4 4M8 15l1 1M6 17l1 1M3 19l2 2M19 9l-8.5 8.5L7 21H3v-4l3.5-3.5L15 5l4 4z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
       </div>

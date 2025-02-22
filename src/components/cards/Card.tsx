@@ -88,9 +88,10 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, className = '
 
       {/* Card Content */}
       {data.description && (
-        <p className="text-sm leading-relaxed mb-3 line-clamp-3 text-gray-600">
-          {data.description}
-        </p>
+        <div 
+          className="prose prose-sm max-w-none mb-3 line-clamp-3 text-gray-600"
+          dangerouslySetInnerHTML={{ __html: data.description }}
+        />
       )}
 
       {/* URL (for bookmarks) */}

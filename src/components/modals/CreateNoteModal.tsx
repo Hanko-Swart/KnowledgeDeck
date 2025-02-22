@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Folder } from '@/types/folder';
 import { saveNote } from '@/storage/noteStorage';
 import { RichTextEditor } from '@components/editor/RichTextEditor';
@@ -25,6 +25,22 @@ export const CreateNoteModal: React.FC<CreateNoteModalProps> = ({
   const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
   const [isGeneratingTags, setIsGeneratingTags] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+
+  const resetForm = () => {
+    setTitle('');
+    setContent('');
+    setSelectedFolderId(currentFolderId || '');
+    setTags([]);
+    setSuggestedTags([]);
+  };
+
+  useEffect(() => {
+    if (!isOpen) {
+      resetForm();
+    } else {
+      setSelectedFolderId(currentFolderId || '');
+    }
+  }, [isOpen, currentFolderId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
