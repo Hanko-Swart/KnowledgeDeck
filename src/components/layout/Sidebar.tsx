@@ -5,18 +5,18 @@ import { FolderCard } from '@components/folders/FolderCard';
 import { FolderNavigation } from '@components/navigation/FolderNavigation';
 import type { CardData } from '@components/cards/Card';
 import type { Folder } from '@/types/folder';
+import { AddNewMenu } from '@components/modals/AddNewMenu';
 
 export const Sidebar: React.FC = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
-
-  // Temporary mock data - will be replaced with actual data from storage
-  const mockFolders: Folder[] = [
-    { id: '1', name: 'Research', parentId: null },
+  const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
+  const [mockFolders, setMockFolders] = useState<Folder[]>([
+    { id: '1', name: 'Research', parentId: null, color: '#1a4d63' },
     { id: '2', name: 'Projects', parentId: null },
     { id: '3', name: 'Articles', parentId: '1' },
     { id: '4', name: 'Ideas', parentId: '2' },
-  ];
+  ]);
 
   const mockCards: CardData[] = [
     {
@@ -76,6 +76,38 @@ export const Sidebar: React.FC = () => {
     ? mockCards.filter(c => c.folderId === currentFolderId)
     : [];
 
+  const handleColorChange = (folderId: string, color: string) => {
+    setMockFolders(prev => prev.map(folder => 
+      folder.id === folderId 
+        ? { ...folder, color } 
+        : folder
+    ));
+  };
+
+  const handleAddBookmark = async (folderId: string) => {
+    // TODO: Implement bookmark creation
+    console.log('Adding bookmark to folder:', folderId);
+  };
+
+  const handleAddNote = (folderId: string) => {
+    // TODO: Implement note creation
+    console.log('Adding note to folder:', folderId);
+  };
+
+  const handleAddFlowDiagram = (folderId: string) => {
+    // TODO: Implement flow diagram creation
+    console.log('Adding flow diagram to folder:', folderId);
+  };
+
+  const handleCreateFolder = (name: string) => {
+    const newFolder: Folder = {
+      id: Date.now().toString(),
+      name,
+      parentId: null,
+    };
+    setMockFolders(prev => [...prev, newFolder]);
+  };
+
   return (
     <div className="flex flex-col h-screen bg-white">
       {/* Header */}
@@ -99,6 +131,7 @@ export const Sidebar: React.FC = () => {
         <div className="flex items-center gap-2">
           <button
             className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+            onClick={() => setIsAddMenuOpen(true)}
             title="Create New"
           >
             <svg
@@ -141,6 +174,17 @@ export const Sidebar: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Add New Menu */}
+      <AddNewMenu
+        isOpen={isAddMenuOpen}
+        onClose={() => setIsAddMenuOpen(false)}
+        folders={mockFolders}
+        onAddBookmark={handleAddBookmark}
+        onAddNote={handleAddNote}
+        onAddFlowDiagram={handleAddFlowDiagram}
+        onCreateFolder={handleCreateFolder}
+      />
 
       {/* Search Bar */}
       <div className="p-4">
@@ -208,6 +252,7 @@ export const Sidebar: React.FC = () => {
                   folder={folder}
                   items={getFolderItems(folder.id)}
                   onOpen={setCurrentFolderId}
+                  onColorChange={handleColorChange}
                 />
               ))}
             </div>

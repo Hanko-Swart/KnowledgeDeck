@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Folder } from '@/types/folder';
 import { CardData } from '@/components/cards/Card';
 
@@ -10,6 +10,22 @@ interface FolderCardProps {
   className?: string;
 }
 
+// Predefined colors based on our design system
+const FOLDER_COLORS = [
+  { id: 'blue1', color: '#1a4d63', label: 'Deep Ocean' },
+  { id: 'blue2', color: '#2c7c8f', label: 'Ocean Teal' },
+  { id: 'blue3', color: '#45919f', label: 'Soft Ocean' },
+  { id: 'green1', color: '#7a9f4c', label: 'Forest Moss' },
+  { id: 'green2', color: '#b5cc94', label: 'Sage' },
+  { id: 'green3', color: '#c8dba4', label: 'Light Olive' },
+  { id: 'earth1', color: '#d4956a', label: 'Terracotta' },
+  { id: 'earth2', color: '#c17f59', label: 'Cedar' },
+  { id: 'earth3', color: '#e8c5a2', label: 'Peach' },
+  { id: 'accent1', color: '#b54d55', label: 'Deep Rose' },
+  { id: 'accent2', color: '#e88e96', label: 'Soft Coral' },
+  { id: 'accent3', color: '#f0b3b8', label: 'Light Pink' },
+];
+
 export const FolderCard: React.FC<FolderCardProps> = ({ 
   folder, 
   items, 
@@ -17,6 +33,8 @@ export const FolderCard: React.FC<FolderCardProps> = ({
   onColorChange,
   className = '' 
 }) => {
+  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
+  
   // Get unique tags from all items in the folder
   const tags = Array.from(new Set(items.flatMap(item => item.tags || [])));
   
@@ -31,6 +49,12 @@ export const FolderCard: React.FC<FolderCardProps> = ({
 
   const colors = getColorStyles(folder.color);
 
+  const handleColorClick = (e: React.MouseEvent, color: string) => {
+    e.stopPropagation();
+    onColorChange?.(folder.id, color);
+    setIsColorPickerOpen(false);
+  };
+
   return (
     <div
       className={`group relative bg-white rounded-lg shadow-sm hover:shadow-md transition-all p-4 cursor-pointer border border-secondary/10 ${className}`}
@@ -40,63 +64,115 @@ export const FolderCard: React.FC<FolderCardProps> = ({
         borderColor: colors.borderColor,
       }}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <span 
-            className="p-1.5 rounded-lg"
-            style={{ backgroundColor: `${colors.accentColor}15` }}
+      {/* Color Picker Button */}
+      <div className="absolute top-3 right-3 z-20">
+        <button
+          className="p-1.5 rounded-lg hover:bg-black/5 transition-colors"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsColorPickerOpen(!isColorPickerOpen);
+          }}
+          title="Change folder color"
+        >
+          <svg
+            className="w-4 h-4"
+            style={{ color: colors.accentColor }}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            <svg
-              className="w-5 h-5"
-              style={{ color: colors.accentColor }}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-              />
-            </svg>
-          </span>
-          <div>
-            <h3 
-              className="text-base font-medium leading-tight"
-              style={{ color: colors.accentColor }}
-            >
-              {folder.name}
-            </h3>
-            <span 
-              className="text-xs"
-              style={{ color: `${colors.accentColor}70` }}
-            >
-              {items.length} items
-            </span>
-          </div>
-        </div>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
+            />
+          </svg>
+        </button>
 
-        {/* Color Picker */}
-        {onColorChange && (
-          <div className="flex items-center gap-1">
-            {['#1a4d63', '#2c7c8f', '#45919f', '#7a9f4c', '#b5cc94', '#d4956a'].map(color => (
-              <button
-                key={color}
-                className="w-4 h-4 rounded-full transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2"
-                style={{ 
-                  backgroundColor: color,
-                  transform: folder.color === color ? 'scale(1.1)' : 'scale(1)',
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onColorChange(folder.id, color);
-                }}
-              />
-            ))}
-          </div>
+        {/* Color Picker Popup */}
+        {isColorPickerOpen && (
+          <>
+            <div 
+              className="fixed inset-0 z-30" 
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsColorPickerOpen(false);
+              }}
+            />
+            <div 
+              className="absolute right-0 top-8 bg-white rounded-lg shadow-xl border border-gray-200 p-3 w-48 z-40"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="grid grid-cols-4 gap-2">
+                {FOLDER_COLORS.map(({ id, color }) => (
+                  <button
+                    key={id}
+                    className={`w-10 h-10 rounded-lg transition-all duration-200 ${
+                      folder.color === color 
+                        ? 'ring-2 ring-primary ring-offset-2 scale-105' 
+                        : 'hover:scale-105'
+                    }`}
+                    style={{ backgroundColor: color }}
+                    onClick={(e) => handleColorClick(e, color)}
+                  >
+                    {folder.color === color && (
+                      <span className="absolute inset-0 flex items-center justify-center text-white">
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
         )}
+      </div>
+
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-3">
+        <span 
+          className="p-1.5 rounded-lg relative"
+          style={{ backgroundColor: `${colors.accentColor}15` }}
+        >
+          <svg
+            className="w-5 h-5"
+            style={{ color: colors.accentColor }}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+            />
+          </svg>
+          {/* Color indicator dot */}
+          {folder.color && (
+            <span 
+              className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-white"
+              style={{ backgroundColor: folder.color }}
+            />
+          )}
+        </span>
+        <div>
+          <h3 
+            className="text-base font-medium leading-tight"
+            style={{ color: colors.accentColor }}
+          >
+            {folder.name}
+          </h3>
+          <span 
+            className="text-xs"
+            style={{ color: `${colors.accentColor}70` }}
+          >
+            {items.length} items
+          </span>
+        </div>
       </div>
 
       {/* Preview */}
