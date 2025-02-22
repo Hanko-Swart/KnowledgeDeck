@@ -1,4 +1,3 @@
-import React from 'react';
 import { Sidebar } from '@components/layout/Sidebar';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
 

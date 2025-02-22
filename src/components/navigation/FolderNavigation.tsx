@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import type { Folder } from '@/types/folder';
 import {
   ChevronLeft,
-  ChevronRight,
   Home
 } from 'lucide-react';
 

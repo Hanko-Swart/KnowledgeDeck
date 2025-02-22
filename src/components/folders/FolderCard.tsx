@@ -3,19 +3,17 @@ import type { Folder } from '@/types/folder';
 import type { CardData } from '@components/cards/Card';
 import {
   Folder as FolderIcon,
-  MoreVertical,
   Edit,
   Trash,
-  Palette
 } from 'lucide-react';
 
 interface FolderCardProps {
   folder: Folder;
   items: CardData[];
   onOpen: (folderId: string) => void;
-  onClick?: (id: string) => void;
-  onEdit?: (id: string) => void;
-  onDelete?: (id: string) => void;
+  onClick: (folderId: string) => void;
+  onEdit: (folderId: string) => void;
+  onDelete: (folderId: string) => void;
   onColorChange?: (folderId: string, color: string) => void;
   className?: string;
 }
@@ -36,18 +34,18 @@ export const FolderCard: React.FC<FolderCardProps> = ({
   const tags = Array.from(new Set(items.flatMap(item => item.tags || [])));
 
   const handleClick = () => {
-    onClick?.(folder.id);
+    onClick(folder.id);
     onOpen(folder.id);
   };
 
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onEdit?.(folder.id);
+    onEdit(folder.id);
   };
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onDelete?.(folder.id);
+    onDelete(folder.id);
   };
 
   return (

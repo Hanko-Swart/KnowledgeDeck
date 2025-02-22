@@ -93,4 +93,8 @@ export const extractPageContent = async (url: string): Promise<PageContent> => {
     console.error('Failed to extract page content:', error);
     throw error;
   }
+};
+
+export const sendMessageToContentScript = async (_url: string) => {
+  // ... existing code ...
 }; 

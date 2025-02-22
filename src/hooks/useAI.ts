@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import type { AIService, AIResponse, TagGenerationResponse, SummaryGenerationResponse, SimilaritySearchResponse } from '@/types/ai';
+import type { AIResponse } from '@/services/ai/types';
 import { getAIService } from '@/services/ai';
 
 interface UseAIResult {

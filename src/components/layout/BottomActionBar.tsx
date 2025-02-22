@@ -5,7 +5,6 @@ import { CreateBookmarkModal } from '@components/modals/CreateBookmarkModal';
 import { getCurrentTab } from '@/utils/chrome';
 import {
   Plus,
-  FileText,
   Bookmark,
   GitBranch,
   Folder as FolderIcon

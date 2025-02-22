@@ -2,7 +2,6 @@ import React from 'react';
 import {
   FileText,
   Bookmark,
-  MoreVertical,
   Edit,
   Trash,
   ExternalLink

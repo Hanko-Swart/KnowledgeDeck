@@ -1,5 +1,5 @@
 import Dexie, { Table } from 'dexie';
-import type { Note } from './noteStorage';
+import type { Note } from '@/types/note';
 import type { Bookmark } from './bookmarkStorage';
 import type { Folder } from '@/types/folder';
 
