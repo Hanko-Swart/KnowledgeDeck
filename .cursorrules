@@ -1,0 +1,100 @@
+0) GENERAL PRINCIPLES
+   a. Don't make assumptions:
+      - Always verify assumptions with tests and explicit checks.
+      - Ask clarifying questions when requirements are ambiguous.
+   b. Be methodical:
+      - Break down tasks into clear, discrete steps.
+      - Document each decision and validate with tests.
+   c. Follow best practices:
+      - Adhere to industry-standard coding guidelines, security measures, and accessibility standards.
+      - Use the latest official documentation for guidance.
+   d. Maintain consistency:
+      - Use consistent naming, formatting, and code structure across the project.
+      - Document all coding conventions and architectural decisions.
+   e. Ensure comprehensive error handling:
+      - Validate inputs and outputs rigorously.
+      - Provide fallback mechanisms and user-friendly error messages.
+
+1) PROJECT CONTEXT
+   a. Project Name: SmartSidebar
+   b. Description: A Chrome extension for organizing research and ideas.
+      - Features include bookmarking webpages, folder management, note-taking with annotations, drag-and-drop reordering, AI-powered auto-tagging/summarization, web clipping, and interactive mind mapping.
+
+2) CODING STANDARDS
+   a. Language & Framework:
+      - Use TypeScript and React.
+      - Implement functional components with hooks (avoid classes).
+   b. Styling:
+      - Use Tailwind CSS with a mobile-first, utility-first approach.
+   c. Naming Conventions:
+      - Variables & functions: camelCase
+      - Components: PascalCase
+      - Directories & file names: kebab-case
+   d. Best Practices:
+      - Prefer iteration and modularization to avoid duplication.
+      - Use early returns and guard clauses for error handling.
+      - Provide clear JSDoc comments and inline comments for complex logic.
+
+3) ARCHITECTURE & FILE STRUCTURE
+   a. Chrome Extension Architecture:
+      - Must be Manifest V3 compliant.
+      - Background: A service worker handles API calls (e.g., AI requests) and data synchronization.
+      - UI: Popup/Sidebar implemented as a single-page React application.
+      - Communication: Use chrome.runtime messaging between UI and background.
+   b. Offline Support:
+      - Use chrome.storage APIs and/or IndexedDB for local data persistence.
+   c. File Organization:
+      - extension/background: Background service worker scripts.
+      - extension/popup: UI components for the popup/sidebar.
+      - extension/components: Reusable React components.
+      - extension/hooks: Custom React hooks.
+      - extension/storage: Utilities for managing Chrome storage.
+      - extension/types: TypeScript type definitions.
+
+4) AI INTEGRATION
+   a. Auto-Tagging & Summarization:
+      - Integrate with external AI services (e.g., OpenAI) to auto-generate tags and summaries.
+      - Abstract AI API calls into a dedicated service layer.
+   b. Similar Articles Recommendation:
+      - Use AI to analyze content and suggest related articles.
+   c. Guidelines:
+      - Ensure that AI-related code is modular, testable, and handles errors gracefully.
+
+5) COMPONENT DESIGN & FUNCTIONALITY
+   a. UI Components:
+      - Build functional components using React hooks.
+      - Ensure components are reusable and follow separation of concerns.
+      - Implement error boundaries to catch rendering errors.
+   b. Drag-and-Drop:
+      - Use a library (e.g., React DnD) for intuitive drag-and-drop reordering of folders and cards.
+   c. Mind Mapping Mode:
+      - Provide a separate visualization mode (e.g., using D3.js) to display cards as interconnected nodes.
+
+6) TESTING & DEPLOYMENT
+   a. Testing:
+      - Write unit tests using Jest and React Testing Library.
+      - Include integration tests for core workflows (e.g., bookmark creation, drag-and-drop, AI processing).
+   b. Build & Deployment:
+      - Use a lightweight bundler (Vite or Parcel) to build the extension.
+      - Package the extension as a CRX file for Chrome Web Store publication and offline distribution.
+      - Ensure compliance with Chrome Manifest V3 guidelines.
+
+7) DOCUMENTATION & MAINTENANCE
+   a. Developer Documentation:
+      - Include JSDoc comments for all functions and components.
+      - Maintain an up-to-date README.md detailing setup, file structure, and coding guidelines.
+   b. In-Code Comments:
+      - Provide inline comments for complex or non-obvious logic.
+   c. Update Process:
+      - Regularly review and update this .cursorrules file to reflect changes in project architecture or coding standards.
+
+8) PERFORMANCE, SECURITY & ACCESSIBILITY
+   a. Performance:
+      - Optimize rendering using React.memo and lazy loading for non-critical components.
+      - Use dynamic imports to split code and reduce initial load times.
+   b. Security:
+      - Follow Chrome Extension security best practices (minimal permissions, proper Content Security Policy).
+      - Implement try/catch blocks for asynchronous operations and log errors appropriately.
+   c. Accessibility:
+      - Use semantic HTML and proper ARIA attributes.
+      - Ensure keyb
