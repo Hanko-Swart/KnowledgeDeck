@@ -14,6 +14,7 @@ import { AISettings } from '@components/settings/AISettings';
 import { getAllBookmarks } from '@/storage/bookmarkStorage';
 import { FolderOutlined, NoteAddOutlined, BookmarkAddOutlined, AccountTreeOutlined } from '@mui/icons-material';
 import { ConfirmationModal } from '@components/modals/ConfirmationModal';
+import { CreateFolderModal } from '@components/modals/CreateFolderModal';
 
 export const Sidebar: React.FC = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
@@ -28,6 +29,7 @@ export const Sidebar: React.FC = () => {
     id: string;
     name: string;
   } | null>(null);
+  const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false);
 
   // Convert Note to CardData
   const convertNoteToCard = (note: Note): CardData => ({
@@ -181,12 +183,23 @@ export const Sidebar: React.FC = () => {
   };
 
   const handleCreateFolder = (parentId: string | null) => {
-    const newFolder: Folder = {
-      id: Date.now().toString(),
-      name: `New Folder ${mockFolders.length + 1}`,
-      parentId,
-    };
-    setMockFolders(prev => [...prev, newFolder]);
+    setCurrentFolderId(parentId);
+    setIsCreateFolderModalOpen(true);
+  };
+
+  const handleFolderCreated = async (folderId: string) => {
+    try {
+      // Refresh folders from storage
+      const updatedFolders = await getFolders();
+      setMockFolders(updatedFolders);
+      
+      // Update UI state
+      setIsCreateFolderModalOpen(false);
+      setCurrentFolderId(folderId);
+    } catch (error) {
+      console.error('Failed to refresh folders:', error);
+      // TODO: Show error message to user
+    }
   };
 
   const handleDeleteFolder = async (folderId: string) => {
@@ -505,6 +518,15 @@ export const Sidebar: React.FC = () => {
         confirmLabel="Delete"
         cancelLabel="Cancel"
         type="danger"
+      />
+
+      {/* Create Folder Modal */}
+      <CreateFolderModal
+        isOpen={isCreateFolderModalOpen}
+        onClose={() => setIsCreateFolderModalOpen(false)}
+        folders={mockFolders}
+        currentFolderId={currentFolderId}
+        onFolderCreated={handleFolderCreated}
       />
     </div>
   );
