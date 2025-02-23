@@ -7,6 +7,7 @@ export interface Note {
   content: string;
   folderId: string;
   tags: string[];
+  template?: string;
   createdAt: Date;
   updatedAt: Date;
 } 

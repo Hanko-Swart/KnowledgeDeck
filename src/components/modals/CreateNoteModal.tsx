@@ -4,6 +4,7 @@ import { saveNote } from '@/storage/noteStorage';
 import { RichTextEditor } from '@components/editor/RichTextEditor';
 import { noteTemplates } from '@/templates/noteTemplates';
 import { useAI } from '@/hooks/useAI';
+import { Sparkles, SparklesIcon } from 'lucide-react';
 
 interface CreateNoteModalProps {
   isOpen: boolean;
@@ -219,10 +220,11 @@ export const CreateNoteModal: React.FC<CreateNoteModalProps> = ({
                 <button
                   type="button"
                   onClick={handleGenerateSummary}
-                  className="text-sm text-primary hover:text-primary/80 transition-colors disabled:opacity-50"
+                  className="text-sm text-primary hover:text-primary/80 transition-colors disabled:opacity-50 flex items-center gap-1"
                   disabled={isGeneratingSummary || !content}
                 >
-                  {isGeneratingSummary ? 'Generating...' : 'Generate Summary'}
+                  <Sparkles className={`h-4 w-4 ${isGeneratingSummary ? 'animate-spin' : ''}`} />
+                  Summarize
                 </button>
               </div>
               <RichTextEditor

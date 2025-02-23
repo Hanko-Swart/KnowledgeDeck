@@ -4,6 +4,7 @@ import { saveBookmark } from '@/storage/bookmarkStorage';
 import { RichTextEditor } from '@components/editor/RichTextEditor';
 import { useAI } from '@/hooks/useAI';
 import { extractPageContent } from '@/utils/content';
+import { Sparkles } from 'lucide-react';
 
 interface CreateBookmarkModalProps {
   isOpen: boolean;
@@ -233,7 +234,8 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
                     className="text-sm text-primary hover:text-primary/80 transition-colors disabled:opacity-50"
                     disabled={isGeneratingDescription || isAILoading}
                   >
-                    {isGeneratingDescription ? 'Generating...' : 'Generate AI Description'}
+                    <Sparkles className={`h-4 w-4 ${isGeneratingDescription ? 'animate-spin' : ''}`} />
+                  Generate Summary
                   </button>
                 </div>
 

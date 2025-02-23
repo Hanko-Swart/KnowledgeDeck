@@ -146,7 +146,7 @@ export const CreateFolderModal: React.FC<CreateFolderModalProps> = ({
             </div>
 
             {/* Preview */}
-            <div className="mt-4 p-4 rounded-lg bg-muted">
+            <div className="mt-4 p-4 rounded-lg">
               <div className="flex items-center gap-3">
                 <div
                   className="w-10 h-10 rounded-lg flex items-center justify-center"
@@ -167,7 +167,7 @@ export const CreateFolderModal: React.FC<CreateFolderModalProps> = ({
                   </svg>
                 </div>
                 <div>
-                  <h4 className="font-medium text-foreground" style={{ color: selectedColor }}>
+                  <h4 className="font-medium text-foreground" >
                     {folderName || 'New Folder'}
                   </h4>
                   <p className="text-sm text-muted-foreground">
@@ -190,7 +190,7 @@ export const CreateFolderModal: React.FC<CreateFolderModalProps> = ({
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                className="px-4 py-2 text-sm font-medium bg-primary bg-background border border-input rounded-lg hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                 disabled={!folderName.trim()}
               >
                 Create Folder
