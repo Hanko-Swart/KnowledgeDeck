@@ -77,7 +77,7 @@ export const CreateFolderModal: React.FC<CreateFolderModalProps> = ({
 
         <div className="inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-background rounded-lg shadow-lg border border-border sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium text-foreground">Create New Folder</h3>
+            <h3 className="text-lg font-medium text-foreground">New Folder</h3>
             <button
               onClick={onClose}
               className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent transition-colors"

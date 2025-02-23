@@ -229,7 +229,7 @@ export const MindMapModal: React.FC<MindMapModalProps> = ({
   const handleSave = useCallback(() => {
     if (onSaveMindMap) {
       onSaveMindMap({ nodes, edges });
-      toast.success('Mind map saved successfully');
+      toast.success('Flow saved successfully');
     }
   }, [nodes, edges, onSaveMindMap]);
 
@@ -251,7 +251,7 @@ export const MindMapModal: React.FC<MindMapModalProps> = ({
       <div className="fixed inset-4 bg-card rounded-lg shadow-lg z-50 flex flex-col border border-border">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card">
-          <h2 className="text-lg font-medium text-foreground">Mind Map View</h2>
+          <h2 className="text-lg font-medium text-foreground">New Flow</h2>
           <div className="flex items-center gap-2">
             <Button
               size="sm"
@@ -260,7 +260,7 @@ export const MindMapModal: React.FC<MindMapModalProps> = ({
               className="flex items-center gap-2 text-foreground hover:text-foreground"
             >
               <Save className="w-4 h-4" />
-              Save Layout
+              Save
             </Button>
             <button
               onClick={onClose}

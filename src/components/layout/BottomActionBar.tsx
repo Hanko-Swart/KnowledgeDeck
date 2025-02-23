@@ -7,7 +7,9 @@ import {
   Plus,
   Bookmark,
   GitBranch,
-  Folder as FolderIcon
+  Folder as FolderIcon,
+  Notebook,
+  NotepadText
 } from 'lucide-react';
 
 interface BottomActionBarProps {
@@ -43,34 +45,37 @@ export const BottomActionBar: React.FC<BottomActionBarProps> = ({
   return (
     <>
       <div className="bg-card border-t border-border shadow-lg">
-        <div className="flex items-center justify-around p-2">
-          <button
-            onClick={() => setIsNoteModalOpen(true)}
-            className="flex flex-col items-center p-2 text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
-          >
-            <Plus className="h-5 w-5" />
-            <span className="text-xs mt-1">Note</span>
-          </button>
-          <button
-            onClick={handleAddBookmark}
-            className="flex flex-col items-center p-2 text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
-          >
-            <Bookmark className="h-4 w-4" />
-            <span className="text-xs mt-1">Bookmark</span>
-          </button>
+        <div className="flex items-center justify-between p-2">
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setIsNoteModalOpen(true)}
+              className="flex flex-col items-center p-2 text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
+            >
+              <NotepadText className="h-4 w-4" />
+              <span className="text-xs mt-1">Note</span>
+            </button>
+            <button
+              onClick={handleAddBookmark}
+              className="flex flex-col items-center p-2 text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
+            >
+              <Bookmark className="h-4 w-4" />
+              <span className="text-xs mt-1">Bookmark</span>
+            </button>
+            <button
+              onClick={() => onAddFlowDiagram?.(currentFolderId || '')}
+              className="flex flex-col items-center p-2 text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
+            >
+              <GitBranch className="h-4 w-4" />
+              <span className="text-xs mt-1">Flow</span>
+            </button>
+          </div>
+
           <button
             onClick={() => onAddFolder?.(currentFolderId)}
             className="flex flex-col items-center p-2 text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
           >
             <FolderIcon className="h-4 w-4" />
             <span className="text-xs mt-1">Folder</span>
-          </button>
-          <button
-            onClick={() => onAddFlowDiagram?.(currentFolderId || '')}
-            className="flex flex-col items-center p-2 text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
-          >
-            <GitBranch className="h-4 w-4" />
-            <span className="text-xs mt-1">Flow</span>
           </button>
         </div>
       </div>

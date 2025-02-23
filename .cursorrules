@@ -1,3 +1,5 @@
+NEVER HARDCODE THEME COLORS IN THE CODE. SHADCN HANDLES THIS FOR US
+
 0) GENERAL PRINCIPLES
    a. Don't make assumptions:
       - Always verify assumptions with tests and explicit checks.

@@ -153,7 +153,7 @@ export const CreateNoteModal: React.FC<CreateNoteModalProps> = ({
       <div className="fixed inset-4 sm:inset-auto sm:top-[5%] sm:left-1/2 sm:-translate-x-1/2 sm:w-[600px] sm:max-h-[90vh] bg-background rounded-lg shadow-lg z-50 flex flex-col">
         {/* Header - Fixed */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
-          <h2 className="text-lg font-medium text-foreground">Create New Note</h2>
+          <h2 className="text-lg font-medium text-foreground">New Note</h2>
           <button
             onClick={onClose}
             className="p-1.5 hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
