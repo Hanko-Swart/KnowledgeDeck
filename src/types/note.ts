@@ -7,4 +7,5 @@ export interface Note {
   createdAt: Date;
   updatedAt: Date;
   type: 'note';
+  template?: string;
 } 

@@ -18,7 +18,7 @@ chrome.runtime.onInstalled.addListener((details) => {
 });
 
 // Listen for messages from the popup/sidebar
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   switch (message.type) {
     case 'GET_CURRENT_TAB':
       getCurrentTab().then(sendResponse);
@@ -43,7 +43,7 @@ async function getCurrentTab() {
 }
 
 // Handle AI-related requests
-async function handleAIRequest(data: any) {
+async function handleAIRequest(_data: any) {
   // TODO: Implement AI processing logic
   // This will integrate with your chosen AI service
   return {

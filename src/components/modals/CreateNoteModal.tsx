@@ -20,7 +20,7 @@ export const CreateNoteModal: React.FC<CreateNoteModalProps> = ({
   currentFolderId,
   onNoteCreated,
 }) => {
-  const { isLoading: isAILoading, error: aiError, generateTags, generateSummary } = useAI();
+  const { error: aiError, generateTags, generateSummary } = useAI();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [selectedFolderId, setSelectedFolderId] = useState(currentFolderId || '');
@@ -78,6 +78,7 @@ export const CreateNoteModal: React.FC<CreateNoteModalProps> = ({
         folderId: selectedFolderId,
         tags,
         template: selectedTemplate,
+        type: 'note',
       });
       onNoteCreated?.();
       onClose();

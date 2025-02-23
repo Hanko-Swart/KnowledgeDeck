@@ -27,7 +27,6 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
   const [title, setTitle] = useState(initialTitle);
   const [url, setUrl] = useState(initialUrl);
   const [description, setDescription] = useState('');
-  const [metaDescription, setMetaDescription] = useState('');
   const [selectedFolderId, setSelectedFolderId] = useState(currentFolderId || '');
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
@@ -52,7 +51,6 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
     setSelectedFolderId(currentFolderId || '');
     setTags([]);
     setTagInput('');
-    setMetaDescription('');
     setError(null);
   };
 
@@ -62,7 +60,6 @@ export const CreateBookmarkModal: React.FC<CreateBookmarkModalProps> = ({
     try {
       const content = await extractPageContent(urlToLoad);
       setTitle(content.title || initialTitle);
-      setMetaDescription(content.metaDescription || '');
       setDescription(content.metaDescription || '');
     } catch (err) {
       console.error('Failed to extract page content:', err);

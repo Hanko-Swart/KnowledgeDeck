@@ -1,5 +1,3 @@
-import { AIResponse } from '@/types/ai';
-
 interface CacheEntry<T> {
   data: T;
   timestamp: number;

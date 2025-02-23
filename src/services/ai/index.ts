@@ -1,30 +1,22 @@
-import type { AIService, AIConfig, AIResponse, TagGenerationResponse, SummaryGenerationResponse, SimilaritySearchResponse } from '@/types/ai';
+import type { 
+  AIService, 
+  AIConfig, 
+  AIResponse, 
+  TagGenerationResponse, 
+  SummaryGenerationResponse, 
+  SimilaritySearchResponse 
+} from '@/types/ai';
 import { AIConfigManager } from './config';
 import { HuggingFaceService } from './huggingface';
 import { FallbackAIService } from './fallback';
 
-class NoOpAIService implements AIService {
-  async generateTags(): Promise<AIResponse<TagGenerationResponse>> {
-    return {
-      success: false,
-      error: 'AI service is not configured'
-    };
-  }
-
-  async generateSummary(): Promise<AIResponse<SummaryGenerationResponse>> {
-    return {
-      success: false,
-      error: 'AI service is not configured'
-    };
-  }
-
-  async findSimilarContent(): Promise<AIResponse<SimilaritySearchResponse>> {
-    return {
-      success: false,
-      error: 'AI service is not configured'
-    };
-  }
-}
+// Re-export the response types as they are part of the public API
+export type {
+  TagGenerationResponse,
+  SummaryGenerationResponse,
+  SimilaritySearchResponse,
+  AIResponse
+};
 
 export class AIServiceFactory {
   private static instance: AIService | null = null;

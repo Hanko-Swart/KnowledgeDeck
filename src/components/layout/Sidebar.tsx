@@ -22,8 +22,7 @@ import {
   Grid,
   Upload,
   Download,
-  RefreshCw,
-  X
+  RefreshCw
 } from 'lucide-react';
 import { ConfirmationModal } from '@components/modals/ConfirmationModal';
 import { CreateFolderModal } from '@components/modals/CreateFolderModal';
@@ -43,6 +42,7 @@ export const Sidebar: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [mockFolders, setMockFolders] = useState<Folder[]>([]);
   const [notes, setNotes] = useState<CardData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [deleteConfirmation, setDeleteConfirmation] = useState<{
     isOpen: boolean;
     type: 'folder' | 'card';
@@ -66,17 +66,17 @@ export const Sidebar: React.FC = () => {
   // Load folders and notes from storage on component mount
   useEffect(() => {
     const loadData = async () => {
+      setIsLoading(true);
       try {
-        // Load folders
-        const storedFolders = await getFolders();
-        setMockFolders(storedFolders);
+        // Load data in parallel
+        const [storedFolders, storedNotes, storedBookmarks] = await Promise.all([
+          getFolders(),
+          getNotes(),
+          getAllBookmarks()
+        ]);
 
-        // Load notes and convert them to CardData
-        const storedNotes = await getNotes();
+        // Process the data
         const noteCards = storedNotes.map(convertNoteToCard);
-
-        // Load bookmarks and convert them to CardData
-        const storedBookmarks = await getAllBookmarks();
         const bookmarkCards = storedBookmarks.map(bookmark => ({
           id: bookmark.id,
           type: 'bookmark' as const,
@@ -90,11 +90,14 @@ export const Sidebar: React.FC = () => {
           screenshot: bookmark.screenshot,
         }));
 
-        // Combine notes and bookmarks
+        // Update state once with all data
+        setMockFolders(storedFolders);
         setNotes([...noteCards, ...bookmarkCards]);
       } catch (error) {
         console.error('Failed to load data:', error);
         // TODO: Show error message to user
+      } finally {
+        setIsLoading(false);
       }
     };
     loadData();
@@ -104,30 +107,6 @@ export const Sidebar: React.FC = () => {
   useEffect(() => {
     saveFolders(mockFolders);
   }, [mockFolders]);
-
-  const mockCards: CardData[] = [
-    {
-      id: '1',
-      type: 'bookmark',
-      title: 'Getting Started with Chrome Extensions',
-      description: 'Learn how to build Chrome extensions using Manifest V3',
-      url: 'https://developer.chrome.com/docs/extensions/mv3/getstarted/',
-      tags: ['chrome', 'development', 'tutorial'],
-      createdAt: new Date('2024-02-22'),
-      updatedAt: new Date('2024-02-22'),
-      folderId: '1'
-    },
-    {
-      id: '2',
-      type: 'note',
-      title: 'Extension Ideas',
-      description: 'Some ideas for future extension features:\n- AI integration\n- Better search\n- Dark mode',
-      tags: ['ideas', 'features'],
-      createdAt: new Date('2024-02-22'),
-      updatedAt: new Date('2024-02-22'),
-      folderId: '2'
-    }
-  ];
 
   const handleSearch = (query: string) => {
     console.log('Searching for:', query);
@@ -142,17 +121,6 @@ export const Sidebar: React.FC = () => {
   const handleCardEdit = (id: string) => {
     console.log('Edit card:', id);
     // TODO: Implement card editing
-  };
-
-  // Get top-level folders and their items
-  const rootFolders = mockFolders.filter(f => !f.parentId);
-  const getFolderItems = (folderId: string) => {
-    const childFolderIds = mockFolders
-      .filter(f => f.parentId === folderId)
-      .map(f => f.id);
-    return notes.filter(c => 
-      c.folderId === folderId || childFolderIds.includes(c.folderId || '')
-    );
   };
 
   // Get current folder and its items
@@ -174,7 +142,7 @@ export const Sidebar: React.FC = () => {
     });
   };
 
-  const handleAddBookmark = async (folderId: string) => {
+  const handleAddBookmark = async (_folderId: string) => {
     // Refresh bookmarks list after bookmark creation
     const updatedBookmarks = await getAllBookmarks();
     const bookmarkCards = updatedBookmarks.map(bookmark => ({
@@ -191,7 +159,7 @@ export const Sidebar: React.FC = () => {
     setNotes(prev => [...prev.filter(note => note.type !== 'bookmark'), ...bookmarkCards]);
   };
 
-  const handleAddNote = async (folderId: string) => {
+  const handleAddNote = async (_folderId: string) => {
     // Refresh notes list after note creation
     const updatedNotes = await getNotes();
     setNotes(updatedNotes.map(convertNoteToCard));
@@ -314,6 +282,34 @@ export const Sidebar: React.FC = () => {
     console.log('Edit folder:', folderId);
   };
 
+  // Early return while loading
+  if (isLoading) {
+    return (
+      <div className="flex flex-col h-screen bg-background">
+        {/* Main Header - Keep it visible during loading */}
+        <div className="flex items-center justify-between px-4 h-14 bg-card border-b border-border">
+          <h1 className="text-xl font-semibold text-foreground">KnowledgeDeck</h1>
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled
+            className="text-muted-foreground"
+          >
+            <Settings className="h-5 w-5" />
+          </Button>
+        </div>
+
+        {/* Loading State */}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="space-y-4 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+            <p className="text-sm text-muted-foreground">Loading your knowledge deck...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Main Header */}
@@ -340,6 +336,12 @@ export const Sidebar: React.FC = () => {
             folders={mockFolders}
             onBack={() => setCurrentFolderId(null)}
             onFolderSelect={handleFolderSelect}
+            items={Object.fromEntries(
+              mockFolders.map(folder => [
+                folder.id,
+                notes.filter(note => note.folderId === folder.id).length
+              ])
+            )}
           />
         ) : (
           <div className="flex items-center justify-between h-14 px-4 bg-card border-b border-border">

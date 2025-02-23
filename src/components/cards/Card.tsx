@@ -2,7 +2,6 @@ import React from 'react';
 import {
   FileText,
   Bookmark,
-  MoreVertical,
   Edit,
   Trash,
   ExternalLink
@@ -43,26 +42,30 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, onDelete, cla
 
   return (
     <div
-      className={`group relative bg-white rounded-lg shadow-sm hover:shadow-md hover:translate-y-[-1px] transition-all duration-300 p-4 cursor-pointer border border-gray-200 ${
-        folderColor ? `border-l-4 border-l-${folderColor}-500` : ''
-      } ${className}`}
+      className={`group relative bg-card text-card-foreground rounded-lg hover:translate-y-[-1px] transition-all duration-300 p-4 cursor-pointer border border-border ${className}`}
       onClick={handleClick}
     >
+      {folderColor && (
+        <div
+          className="absolute left-0 top-0 bottom-0 w-1 rounded-l-lg"
+          style={{ backgroundColor: folderColor }}
+        />
+      )}
       {/* Card Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span className="p-1.5 rounded-md bg-gray-100">
+          <span className="p-1.5 rounded-md bg-muted">
             {data.type === 'bookmark' ? (
-              <Bookmark className="h-5 w-5" />
+              <Bookmark className="h-5 w-5 text-foreground" />
             ) : (
-              <FileText className="h-5 w-5" />
+              <FileText className="h-5 w-5 text-foreground" />
             )}
           </span>
           <div>
-            <h3 className="text-base font-medium leading-tight text-gray-900">
+            <h3 className="text-base font-medium leading-tight text-foreground">
               {data.title}
             </h3>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-muted-foreground">
               {new Date(data.createdAt).toLocaleDateString()}
             </span>
           </div>
@@ -70,13 +73,13 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, onDelete, cla
         <div className="flex items-center gap-1">
           <button
             onClick={handleEdit}
-            className="p-1.5 rounded-md transition-colors bg-gray-100 hover:bg-gray-200"
+            className="p-1.5 rounded-md transition-colors bg-muted hover:bg-muted/80"
           >
-            <Edit className="h-4 w-4" />
+            <Edit className="h-4 w-4 text-foreground" />
           </button>
           <button
             onClick={handleDelete}
-            className="p-1.5 rounded-md transition-colors bg-gray-100 hover:bg-red-100"
+            className="p-1.5 rounded-md transition-colors bg-muted hover:bg-destructive hover:text-destructive-foreground"
           >
             <Trash className="h-4 w-4" />
           </button>
@@ -91,21 +94,21 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, onDelete, cla
             alt={`Screenshot of ${data.title}`}
             className="absolute inset-0 w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent" />
         </div>
       )}
 
       {/* Card Content */}
       {data.description && (
         <div 
-          className="prose prose-sm max-w-none mb-3 line-clamp-3 text-gray-600"
+          className="prose prose-sm max-w-none mb-3 line-clamp-3 text-muted-foreground"
           dangerouslySetInnerHTML={{ __html: data.description }}
         />
       )}
 
       {/* URL (for bookmarks) */}
       {data.type === 'bookmark' && data.url && (
-        <div className="flex items-center text-xs mb-3 text-gray-600">
+        <div className="flex items-center text-xs mb-3 text-muted-foreground">
           <ExternalLink className="h-4 w-4 mr-1.5 flex-shrink-0" />
           <span className="truncate hover:underline">{data.url}</span>
         </div>
@@ -117,7 +120,7 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, onDelete, cla
           {data.tags.map((tag: string) => (
             <span
               key={tag}
-              className="px-2 py-0.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700"
+              className="px-2 py-0.5 text-xs font-medium rounded-md bg-muted text-muted-foreground"
             >
               {tag}
             </span>

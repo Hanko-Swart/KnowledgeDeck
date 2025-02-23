@@ -3,19 +3,17 @@ import type { Folder } from '@/types/folder';
 import type { CardData } from '@components/cards/Card';
 import {
   Folder as FolderIcon,
-  MoreVertical,
   Edit,
   Trash,
-  Palette
 } from 'lucide-react';
 
 interface FolderCardProps {
   folder: Folder;
   items: CardData[];
   onOpen: (folderId: string) => void;
-  onClick?: (id: string) => void;
-  onEdit?: (id: string) => void;
-  onDelete?: (id: string) => void;
+  onClick: (folderId: string) => void;
+  onEdit: (folderId: string) => void;
+  onDelete: (folderId: string) => void;
   onColorChange?: (folderId: string, color: string) => void;
   className?: string;
 }
@@ -36,18 +34,18 @@ export const FolderCard: React.FC<FolderCardProps> = ({
   const tags = Array.from(new Set(items.flatMap(item => item.tags || [])));
 
   const handleClick = () => {
-    onClick?.(folder.id);
+    onClick(folder.id);
     onOpen(folder.id);
   };
 
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onEdit?.(folder.id);
+    onEdit(folder.id);
   };
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onDelete?.(folder.id);
+    onDelete(folder.id);
   };
 
   return (
@@ -55,6 +53,12 @@ export const FolderCard: React.FC<FolderCardProps> = ({
       className={`group relative bg-card text-card-foreground rounded-lg shadow-sm hover:shadow-md transition-all p-4 cursor-pointer border border-border ${className}`}
       onClick={handleClick}
     >
+      {folder.color && (
+        <div
+          className="absolute left-0 top-0 bottom-0 w-1 rounded-l-lg"
+          style={{ backgroundColor: folder.color }}
+        />
+      )}
       {/* Header */}
       <div className="flex items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-2">

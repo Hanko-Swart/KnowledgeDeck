@@ -1,33 +1,33 @@
+/// <reference types="vitest" />
 import '@testing-library/jest-dom';
-import { expect, vi } from 'vitest';
 
 // Define a minimal subset of Chrome API types that we need for testing
-interface ChromeAPI {
+interface MockChromeAPI {
   runtime: {
-    sendMessage: typeof vi.fn;
+    sendMessage: ReturnType<typeof vi.fn>;
     onMessage: {
-      addListener: typeof vi.fn;
-      removeListener: typeof vi.fn;
+      addListener: ReturnType<typeof vi.fn>;
+      removeListener: ReturnType<typeof vi.fn>;
     };
   };
   storage: {
     local: {
-      get: typeof vi.fn;
-      set: typeof vi.fn;
+      get: ReturnType<typeof vi.fn>;
+      set: ReturnType<typeof vi.fn>;
     };
     sync: {
-      get: typeof vi.fn;
-      set: typeof vi.fn;
+      get: ReturnType<typeof vi.fn>;
+      set: ReturnType<typeof vi.fn>;
     };
   };
   tabs: {
-    query: typeof vi.fn;
-    sendMessage: typeof vi.fn;
+    query: ReturnType<typeof vi.fn>;
+    sendMessage: ReturnType<typeof vi.fn>;
   };
 }
 
 // Create mock implementation
-const mockChrome: ChromeAPI = {
+const mockChrome: MockChromeAPI = {
   runtime: {
     sendMessage: vi.fn(),
     onMessage: {
@@ -51,15 +51,11 @@ const mockChrome: ChromeAPI = {
   },
 };
 
-// Extend window interface
-declare global {
-  interface Window {
-    chrome: ChromeAPI;
-  }
-}
-
 // Set up mock
-window.chrome = mockChrome;
+Object.defineProperty(window, 'chrome', {
+  value: mockChrome,
+  writable: true
+});
 
 // Export for use in tests
 export { mockChrome }; 

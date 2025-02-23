@@ -96,6 +96,26 @@
   - Updated color system to use CSS variables
   - Ensured consistent styling across all components
 
+### 7. Recent Bug Fixes & UI Improvements (February 23, 2024)
+- ✅ Fixed UI flashing issues during initial load:
+  - Added proper loading state with spinner
+  - Implemented parallel data loading
+  - Optimized state updates during initialization
+- ✅ Enhanced folder and card styling:
+  - Added subtle color indicators on left edge
+  - Removed unnecessary shadows
+  - Improved visual consistency
+- ✅ Improved folder navigation:
+  - Implemented slide-in panel from right edge
+  - Added folder item counts
+  - Enhanced selected state with folder colors
+  - Added backdrop blur and smooth transitions
+- ✅ General UI improvements:
+  - Better visual hierarchy
+  - Enhanced color consistency
+  - Improved text contrast and readability
+  - Refined hover and active states
+
 ## In Progress 🔄
 
 ### 1. Core Extension Features
@@ -149,17 +169,39 @@
 4. Mind map visualization performance needs improvement
 
 ## Resources & Dependencies
-- Node.js & npm
-- Vite + Vitest
-- React + TypeScript
-- Tailwind CSS
-- Dexie.js
-- TipTap Editor
-- HuggingFace AI API
-- Testing Libraries:
-  - Vitest
-  - Testing Library React
-  - JSDOM
+- Core Technologies:
+  - Node.js v18.18.0
+  - Vite v5.x (Build tool)
+  - React v18.x + TypeScript v5.x
+  - Chrome Extension Manifest V3
+
+- UI & Styling:
+  - Tailwind CSS v3.x
+  - shadcn/ui (React components)
+  - Lucide React (Icons)
+  - TipTap Editor (Rich text editing)
+
+- State & Storage:
+  - Dexie.js v4.x (IndexedDB wrapper)
+  - Chrome Storage APIs
+  - Chrome Runtime APIs
+
+- AI Integration:
+  - HuggingFace Inference API
+  - Custom AI service abstraction
+  - AI response caching system
+
+- Testing Infrastructure:
+  - Vitest (Unit testing)
+  - React Testing Library
+  - Chrome API mocks
+  - JSDOM (Browser environment)
+
+- Development Tools:
+  - ESLint + Prettier
+  - TypeScript path aliases
+  - Husky (Git hooks)
+  - GitHub Actions (CI/CD)
 
 ## Notes
 - Currently focusing on core functionality and stability
@@ -167,28 +209,3 @@
 - Need to maintain focus on offline-first capabilities
 - Consider migration to newer packages for better performance
 - Regular security audits needed for Chrome extension compliance
-
-## Questions & Decisions Needed
-1. Confirm approach for handling offline storage and sync
-2. Decide on specific AI provider and integration strategy
-3. Determine testing strategy and coverage requirements
-4. Decide on state management approach (Context vs. other solutions)
-
-## Resources & Dependencies
-- Node.js & npm
-- Vite + Vitest
-- React + TypeScript
-- Tailwind CSS
-- Dexie.js (pending implementation)
-- React Flow (pending implementation)
-- Testing Libraries:
-  - Vitest
-  - Testing Library React
-  - JSDOM
-
-## Notes
-- Currently focusing on core infrastructure and basic functionality
-- AI features will be implemented after core functionality is stable
-- Need to maintain focus on performance and offline capabilities throughout development
-- Testing infrastructure is now set up with Vitest instead of Jest for better Vite integration
-- Need to update react-flow-renderer to the newer reactflow package 

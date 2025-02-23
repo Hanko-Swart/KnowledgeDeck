@@ -2,46 +2,45 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18.18.0'
-        cache: 'npm'
-    
-    - name: Clean install dependencies
-      run: |
-        npm ci || npm install
-        npm audit fix --force || true
-    
-    - name: Check formatting
-      run: npm run format:check || true
-    
-    - name: Lint
-      run: npm run lint || true
-    
-    - name: Type check
-      run: npm run typecheck || true
-    
-    - name: Build
-      run: npm run build || true
-    
-    - name: Test
-      run: npm test || true
-    
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: dist
-        path: dist/
-        if-no-files-found: error 
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.18.0'
+          cache: 'npm'
+      
+      - name: Clean install dependencies
+        run: |
+          npm ci || npm install
+          npm audit fix --force || true
+      
+      - name: Check formatting
+        run: npm run format:check
+      
+      - name: Lint
+        run: npm run lint
+      
+      - name: Type check
+        run: npm run typecheck
+      
+      - name: Build
+        run: npm run build
+      
+      - name: Test
+        run: npm test
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
