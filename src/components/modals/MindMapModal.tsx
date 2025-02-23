@@ -13,7 +13,7 @@ import ReactFlow, {
   MarkerType,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { Card } from '@/types/card';
+import { Card, CardType } from '@/types/card';
 import { Folder } from '@/types/folder';
 import { X, Plus, FileText, Bookmark, GitBranch, Save, Undo, Redo, ZoomIn, ZoomOut } from 'lucide-react';
 import { CardNode, FolderNode } from '@/components/mindmap/CustomNodes';
@@ -34,6 +34,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
+import { Separator } from "@/components/ui/separator";
 
 interface MindMapModalProps {
   isOpen: boolean;
@@ -232,6 +233,10 @@ export const MindMapModal: React.FC<MindMapModalProps> = ({
     }
   }, [nodes, edges, onSaveMindMap]);
 
+  const getExistingItemsByType = (type: CardType) => {
+    return cards.filter(card => card.type === type && !nodes.some(node => node.id === card.id));
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -327,25 +332,138 @@ export const MindMapModal: React.FC<MindMapModalProps> = ({
                 <DropdownMenuTrigger asChild>
                   <Button
                     size="sm"
-                    className="flex items-center gap-2 text-foreground hover:text-foreground"
+                    variant="secondary"
+                    className="flex items-center gap-2"
                   >
                     <Plus className="w-4 h-4" />
                     Add Node
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => handleAddNodeClick('note')} className="text-foreground hover:text-accent-foreground">
-                    <FileText className="w-4 h-4 mr-2" />
-                    Add Note
+                <DropdownMenuContent align="end" className="w-56 bg-popover border border-border">
+                  {/* Create New Items */}
+                  <DropdownMenuItem 
+                    onClick={() => handleAddNodeClick('note')} 
+                    className="flex items-center cursor-pointer"
+                  >
+                    <FileText className="w-4 h-4 mr-2 text-muted-foreground" />
+                    Create New Note
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleAddNodeClick('bookmark')} className="text-foreground hover:text-accent-foreground">
-                    <Bookmark className="w-4 h-4 mr-2" />
-                    Add Bookmark
+                  <DropdownMenuItem 
+                    onClick={() => handleAddNodeClick('bookmark')} 
+                    className="flex items-center cursor-pointer"
+                  >
+                    <Bookmark className="w-4 h-4 mr-2 text-muted-foreground" />
+                    Create New Bookmark
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleAddNodeClick('flow')} className="text-foreground hover:text-accent-foreground">
-                    <GitBranch className="w-4 h-4 mr-2" />
-                    Add Flow
+                  <DropdownMenuItem 
+                    onClick={() => handleAddNodeClick('flow')} 
+                    className="flex items-center cursor-pointer"
+                  >
+                    <GitBranch className="w-4 h-4 mr-2 text-muted-foreground" />
+                    Create New Flow
                   </DropdownMenuItem>
+
+                  {getExistingItemsByType('note').length > 0 && (
+                    <>
+                      <Separator className="my-2" />
+                      <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">Existing Notes</div>
+                      {getExistingItemsByType('note').map(note => (
+                        <DropdownMenuItem
+                          key={note.id}
+                          onClick={() => {
+                            const x = Math.random() * 500 - 250;
+                            const y = Math.random() * 500 - 250;
+                            const newNode = {
+                              id: note.id,
+                              type: 'card',
+                              data: {
+                                label: note.title,
+                                type: note.type,
+                                description: note.description || '',
+                                tags: note.tags || [],
+                              },
+                              position: { x, y },
+                              draggable: true,
+                              connectable: true,
+                            };
+                            saveToHistory();
+                            setNodes(prev => [...prev, newNode]);
+                          }}
+                          className="pl-8 cursor-pointer text-sm"
+                        >
+                          {note.title}
+                        </DropdownMenuItem>
+                      ))}
+                    </>
+                  )}
+
+                  {getExistingItemsByType('bookmark').length > 0 && (
+                    <>
+                      <Separator className="my-2" />
+                      <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">Existing Bookmarks</div>
+                      {getExistingItemsByType('bookmark').map(bookmark => (
+                        <DropdownMenuItem
+                          key={bookmark.id}
+                          onClick={() => {
+                            const x = Math.random() * 500 - 250;
+                            const y = Math.random() * 500 - 250;
+                            const newNode = {
+                              id: bookmark.id,
+                              type: 'card',
+                              data: {
+                                label: bookmark.title,
+                                type: bookmark.type,
+                                description: bookmark.description || '',
+                                tags: bookmark.tags || [],
+                              },
+                              position: { x, y },
+                              draggable: true,
+                              connectable: true,
+                            };
+                            saveToHistory();
+                            setNodes(prev => [...prev, newNode]);
+                          }}
+                          className="pl-8 cursor-pointer text-sm"
+                        >
+                          {bookmark.title}
+                        </DropdownMenuItem>
+                      ))}
+                    </>
+                  )}
+
+                  {getExistingItemsByType('flow').length > 0 && (
+                    <>
+                      <Separator className="my-2" />
+                      <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">Existing Flows</div>
+                      {getExistingItemsByType('flow').map(flow => (
+                        <DropdownMenuItem
+                          key={flow.id}
+                          onClick={() => {
+                            const x = Math.random() * 500 - 250;
+                            const y = Math.random() * 500 - 250;
+                            const newNode = {
+                              id: flow.id,
+                              type: 'card',
+                              data: {
+                                label: flow.title,
+                                type: flow.type,
+                                description: flow.description || '',
+                                tags: flow.tags || [],
+                              },
+                              position: { x, y },
+                              draggable: true,
+                              connectable: true,
+                            };
+                            saveToHistory();
+                            setNodes(prev => [...prev, newNode]);
+                          }}
+                          className="pl-8 cursor-pointer text-sm"
+                        >
+                          {flow.title}
+                        </DropdownMenuItem>
+                      ))}
+                    </>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </Panel>
