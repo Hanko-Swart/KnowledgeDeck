@@ -10,6 +10,7 @@ interface FolderNavigationProps {
   onBack: () => void;
   onFolderSelect: (folderId: string) => void;
   folders: Folder[];
+  items: { [folderId: string]: number };
 }
 
 export const FolderNavigation: React.FC<FolderNavigationProps> = ({
@@ -17,6 +18,7 @@ export const FolderNavigation: React.FC<FolderNavigationProps> = ({
   onBack,
   onFolderSelect,
   folders,
+  items,
 }) => {
   const [isFolderPanelOpen, setIsFolderPanelOpen] = useState(false);
 
@@ -44,34 +46,47 @@ export const FolderNavigation: React.FC<FolderNavigationProps> = ({
         </button>
       </div>
 
-      {/* Folder Panel */}
+      {/* Folder Panel - Slide from right */}
       {isFolderPanelOpen && (
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-10"
+            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 transition-opacity"
             onClick={() => setIsFolderPanelOpen(false)}
           />
           {/* Panel */}
-          <div className="absolute right-0 top-full mt-1 w-64 bg-card rounded-lg shadow-lg border border-border overflow-hidden z-20">
-            <div className="p-2 space-y-1">
-              {folders.map(folder => (
-                <button
-                  key={folder.id}
-                  className={`flex items-center w-full px-3 py-2 rounded-lg transition-colors ${
-                    folder.id === currentFolder.id
-                      ? 'bg-accent text-accent-foreground'
-                      : 'hover:bg-accent/50 text-foreground'
-                  }`}
-                  onClick={() => {
-                    onFolderSelect(folder.id);
-                    setIsFolderPanelOpen(false);
-                  }}
-                >
-                  <Home className="w-5 h-5 mr-2 text-foreground" />
-                  <span className="flex-1 truncate">{folder.name}</span>
-                </button>
-              ))}
+          <div className="fixed right-0 top-0 bottom-0 w-80 bg-card border-l border-border z-50 shadow-lg transform transition-transform duration-200 ease-in-out">
+            <div className="flex flex-col h-full">
+              <div className="p-4 border-b border-border">
+                <h2 className="text-lg font-medium text-foreground">All Folders</h2>
+              </div>
+              <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                {folders.map(folder => (
+                  <button
+                    key={folder.id}
+                    className={`flex items-center justify-between w-full px-3 py-2 rounded-lg transition-colors ${
+                      folder.id === currentFolder.id
+                        ? 'text-white'
+                        : 'hover:bg-accent/50 text-foreground'
+                    }`}
+                    style={folder.id === currentFolder.id && folder.color ? {
+                      backgroundColor: folder.color
+                    } : undefined}
+                    onClick={() => {
+                      onFolderSelect(folder.id);
+                      setIsFolderPanelOpen(false);
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Home className="w-5 h-5" />
+                      <span className="flex-1 truncate text-left">{folder.name}</span>
+                    </div>
+                    <span className={`text-xs ${folder.id === currentFolder.id ? 'text-white/80' : 'text-muted-foreground'}`}>
+                      {items[folder.id] || 0} items
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </>

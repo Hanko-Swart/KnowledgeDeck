@@ -304,6 +304,12 @@ export const Sidebar: React.FC = () => {
             folders={mockFolders}
             onBack={() => setCurrentFolderId(null)}
             onFolderSelect={handleFolderSelect}
+            items={Object.fromEntries(
+              mockFolders.map(folder => [
+                folder.id,
+                notes.filter(note => note.folderId === folder.id).length
+              ])
+            )}
           />
         ) : (
           <div className="flex items-center justify-between h-14 px-4 bg-card border-b border-border">
