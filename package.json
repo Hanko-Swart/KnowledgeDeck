@@ -67,7 +67,9 @@
     "react-day-picker": "^9.5.1",
     "react-dom": "^18.2.0",
     "react-flow-renderer": "^10.0.0",
-    "shadcn-ui": "^0.9.4"
+    "reactflow": "^11.11.4",
+    "shadcn-ui": "^0.9.4",
+    "sonner": "^2.0.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.2",

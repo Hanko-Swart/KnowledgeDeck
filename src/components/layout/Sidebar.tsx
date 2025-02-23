@@ -6,12 +6,13 @@ import { FolderNavigation } from '@components/navigation/FolderNavigation';
 import type { CardData } from '@components/cards/Card';
 import type { Folder } from '@/types/folder';
 import type { Note } from '@/types/note';
+import type { Card } from '@/types/card';
 import { AddNewMenu } from '@components/modals/AddNewMenu';
 import { getFolders, saveFolders } from '@/storage/folderStorage';
-import { getNotes } from '@/storage/noteStorage';
+import { getNotes, saveNote } from '@/storage/noteStorage';
+import { getAllBookmarks, saveBookmark } from '@/storage/bookmarkStorage';
 import { BottomActionBar } from '@components/layout/BottomActionBar';
 import { AISettings } from '@components/settings/AISettings';
-import { getAllBookmarks } from '@/storage/bookmarkStorage';
 import {
   Folder as FolderIcon,
   FileText,
@@ -34,6 +35,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
+import { MindMapModal } from '@/components/modals/MindMapModal';
+import { Node, Edge } from 'reactflow';
+import { toast } from 'sonner';
 
 export const Sidebar: React.FC = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
@@ -50,6 +54,8 @@ export const Sidebar: React.FC = () => {
     name: string;
   } | null>(null);
   const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false);
+  const [isMindMapOpen, setIsMindMapOpen] = useState(false);
+  const [mindMapLayouts, setMindMapLayouts] = useState<Record<string, { nodes: Node[]; edges: Edge[] }>>({});
 
   // Convert Note to CardData
   const convertNoteToCard = (note: Note): CardData => ({
@@ -166,8 +172,7 @@ export const Sidebar: React.FC = () => {
   };
 
   const handleAddFlowDiagram = (folderId: string) => {
-    // TODO: Implement flow diagram creation
-    console.log('Adding flow diagram to folder:', folderId);
+    setIsMindMapOpen(true);
   };
 
   const handleCreateFolder = (parentId: string | null) => {
@@ -281,6 +286,76 @@ export const Sidebar: React.FC = () => {
     // TODO: Implement folder editing
     console.log('Edit folder:', folderId);
   };
+
+  const handleAddCardFromMindMap = async (newCard: Partial<Card>) => {
+    try {
+      let savedCard;
+      if (newCard.type === 'note' || newCard.type === 'flow') {
+        // Save note or flow
+        savedCard = await saveNote({
+          title: newCard.title || '',
+          content: newCard.description || '',
+          folderId: newCard.folderId || '',
+          tags: newCard.tags || [],
+          type: newCard.type,
+        });
+        const noteCard = convertNoteToCard(savedCard);
+        setNotes(prev => [...prev.filter(n => n.id !== noteCard.id), noteCard]);
+      } else if (newCard.type === 'bookmark') {
+        // Save bookmark
+        savedCard = await saveBookmark({
+          title: newCard.title || '',
+          description: newCard.description || '',
+          url: '',  // Empty URL for now, user can edit later
+          folderId: newCard.folderId || '',
+          tags: newCard.tags || [],
+        });
+        const bookmarkCard: CardData = {
+          id: savedCard.id,
+          type: 'bookmark' as const,
+          title: savedCard.title,
+          description: savedCard.description,
+          url: savedCard.url,
+          tags: savedCard.tags || [],
+          createdAt: new Date(savedCard.createdAt),
+          updatedAt: new Date(savedCard.updatedAt),
+          folderId: savedCard.folderId,
+        };
+        setNotes(prev => [...prev.filter(n => n.id !== bookmarkCard.id), bookmarkCard]);
+      }
+    } catch (error) {
+      console.error('Failed to save card:', error);
+      // TODO: Show error message to user
+    }
+  };
+
+  const handleSaveMindMap = async (folderId: string, layout: { nodes: Node[]; edges: Edge[] }) => {
+    try {
+      // Save the layout to local storage
+      const layouts = { ...mindMapLayouts, [folderId]: layout };
+      setMindMapLayouts(layouts);
+      await chrome.storage.local.set({ mindMapLayouts: layouts });
+      toast.success('Mind map layout saved successfully');
+    } catch (error) {
+      console.error('Failed to save mind map layout:', error);
+      toast.error('Failed to save mind map layout');
+    }
+  };
+
+  // Load mind map layouts on component mount
+  useEffect(() => {
+    const loadMindMapLayouts = async () => {
+      try {
+        const result = await chrome.storage.local.get('mindMapLayouts');
+        if (result.mindMapLayouts) {
+          setMindMapLayouts(result.mindMapLayouts);
+        }
+      } catch (error) {
+        console.error('Failed to load mind map layouts:', error);
+      }
+    };
+    loadMindMapLayouts();
+  }, []);
 
   // Early return while loading
   if (isLoading) {
@@ -549,6 +624,20 @@ export const Sidebar: React.FC = () => {
         folders={mockFolders}
         currentFolderId={currentFolderId}
         onFolderCreated={handleFolderCreated}
+      />
+
+      {/* Mind Map Modal */}
+      <MindMapModal
+        isOpen={isMindMapOpen}
+        onClose={() => setIsMindMapOpen(false)}
+        cards={currentItems}
+        folders={mockFolders}
+        currentFolderId={currentFolderId}
+        onAddCard={handleAddCardFromMindMap}
+        onSaveMindMap={currentFolderId ? 
+          (layout) => handleSaveMindMap(currentFolderId, layout) : 
+          undefined
+        }
       />
     </div>
   );

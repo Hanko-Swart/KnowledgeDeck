@@ -6,17 +6,19 @@ import {
   Trash,
   ExternalLink
 } from 'lucide-react';
+import { CardType } from '@/types/card';
 
 export interface CardData {
   id: string;
-  type: 'bookmark' | 'note';
+  type: CardType;
   title: string;
-  description: string;
-  tags?: string[];
+  description?: string;
+  content?: string;
+  url?: string;
+  tags: string[];
+  folderId: string;
   createdAt: Date;
   updatedAt: Date;
-  folderId?: string;
-  url?: string;
   screenshot?: string;
 }
 

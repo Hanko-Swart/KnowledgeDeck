@@ -1,11 +1,12 @@
+export type NoteType = 'note' | 'flow';
+
 export interface Note {
   id: string;
+  type: NoteType;
   title: string;
   content: string;
-  tags?: string[];
-  folderId: string | null;
+  folderId: string;
+  tags: string[];
   createdAt: Date;
   updatedAt: Date;
-  type: 'note';
-  template?: string;
 } 
