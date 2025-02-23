@@ -42,9 +42,9 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, onDelete, cla
 
   return (
     <div
-      className={`group relative bg-card text-card-foreground rounded-lg shadow-sm hover:shadow-md hover:translate-y-[-1px] transition-all duration-300 p-4 cursor-pointer border border-border ${
-        folderColor ? `border-l-4 border-l-${folderColor}-500` : ''
-      } ${className}`}
+      className={`group relative bg-card text-card-foreground rounded-lg hover:translate-y-[-1px] transition-all duration-300 p-4 cursor-pointer ${
+        folderColor ? `border-l-4 border-l-${folderColor}-500 border` : 'border'
+      } border-border ${className}`}
       onClick={handleClick}
     >
       {/* Card Header */}
