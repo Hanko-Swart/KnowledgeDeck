@@ -42,11 +42,15 @@ export const Card: React.FC<CardProps> = ({ data, onClick, onEdit, onDelete, cla
 
   return (
     <div
-      className={`group relative bg-card text-card-foreground rounded-lg hover:translate-y-[-1px] transition-all duration-300 p-4 cursor-pointer ${
-        folderColor ? `border-l-4 border-l-${folderColor}-500 border` : 'border'
-      } border-border ${className}`}
+      className={`group relative bg-card text-card-foreground rounded-lg hover:translate-y-[-1px] transition-all duration-300 p-4 cursor-pointer border border-border ${className}`}
       onClick={handleClick}
     >
+      {folderColor && (
+        <div
+          className="absolute left-0 top-0 bottom-0 w-1 rounded-l-lg"
+          style={{ backgroundColor: folderColor }}
+        />
+      )}
       {/* Card Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
